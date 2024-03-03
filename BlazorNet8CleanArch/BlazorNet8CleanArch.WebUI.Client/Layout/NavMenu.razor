@@ -1,4 +1,10 @@
-﻿<MudNavMenu>
+﻿<style>
+    .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled){
+        background-color: #B0BEC5;
+    }
+</style>
+
+<MudNavMenu Class="my-custom-navmenu">
     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
     <MudNavLink Href="weather" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.WaterDrop">Weather</MudNavLink>
     <MudNavLink Href="counter" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.PlusOne">Counter</MudNavLink>
