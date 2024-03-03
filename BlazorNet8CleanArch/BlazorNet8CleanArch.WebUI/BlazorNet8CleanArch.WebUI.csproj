@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\BlazorPageScript\BlazorPageScript.csproj" />
-    <ProjectReference Include="..\BlazorNet8CleanArch.WebUI.Client\BlazorNet8CleanArch.WebUI.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlazorNet8CleanArch.Infrastructure\BlazorNet8CleanArch.Infrastructure.csproj" />
+    <ProjectReference Include="..\BlazorNet8CleanArch.WebUI.Client\BlazorNet8CleanArch.WebUI.Client.csproj" />
   </ItemGroup>
 
 </Project>

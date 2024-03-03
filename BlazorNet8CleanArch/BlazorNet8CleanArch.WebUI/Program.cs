@@ -1,5 +1,8 @@
 using BlazorNet8CleanArch.WebUI.Client.Pages;
 using BlazorNet8CleanArch.WebUI.Components;
+using BlazorNet8CleanArch.Application;
+using BlazorNet8CleanArch.Infrastructure;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
+
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 
