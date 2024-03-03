@@ -1,19 +1,13 @@
 ﻿@page "/counter"
-@rendermode InteractiveServer
+@using BlazorPageScript
 
 <PageTitle>Counter</PageTitle>
 
 <h1>Counter</h1>
+<div id="counterApp" v-cloak>
+    <p role="status">Current count: {{ currentCount }}</p>
+    <p role="status">Plus one: {{ plusOne }}</p>
+    <button class="btn btn-primary" @click="incrementCount">Click me</button>
+</div>
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
-    }
-}
+<PageScript Src="./Components/Pages/Counter.razor.js" />

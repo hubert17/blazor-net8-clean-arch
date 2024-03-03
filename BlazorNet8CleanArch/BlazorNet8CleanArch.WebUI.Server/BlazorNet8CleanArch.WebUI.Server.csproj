@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\BlazorNet8CleanArch.Infrastructure\BlazorNet8CleanArch.Infrastructure.csproj" />
+    <ProjectReference Include="..\BlazorPageScript\BlazorPageScript.csproj" />
   </ItemGroup>
 
 </Project>
