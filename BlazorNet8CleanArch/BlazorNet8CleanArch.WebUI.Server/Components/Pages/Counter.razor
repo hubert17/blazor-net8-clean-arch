@@ -7,7 +7,7 @@
 <div id="counterApp" v-cloak>
     <p role="status">Current count: {{ currentCount }}</p>
     <p role="status">Plus one: {{ plusOne }}</p>
-    <button class="btn btn-primary" @click="incrementCount">Click me</button>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" @click="incrementCount">Click me</MudButton>
 </div>
 
 <PageScript Src="./Components/Pages/Counter.razor.js" />
