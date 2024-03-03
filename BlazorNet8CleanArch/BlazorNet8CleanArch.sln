@@ -3,17 +3,19 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.Domain", "BlazorNet8CleanArch.Domain\BlazorNet8CleanArch.Domain.csproj", "{C4F4E352-5310-4037-9310-846900C45F2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorNet8CleanArch.Domain", "BlazorNet8CleanArch.Domain\BlazorNet8CleanArch.Domain.csproj", "{C4F4E352-5310-4037-9310-846900C45F2B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{14D2B134-66AC-4695-B1F9-3FDC9CBA505E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.Application", "BlazorNet8CleanArch.Application\BlazorNet8CleanArch.Application.csproj", "{7951D387-7A0A-4689-BE47-B92CB1BBC938}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorNet8CleanArch.Application", "BlazorNet8CleanArch.Application\BlazorNet8CleanArch.Application.csproj", "{7951D387-7A0A-4689-BE47-B92CB1BBC938}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.Infrastructure", "BlazorNet8CleanArch.Infrastructure\BlazorNet8CleanArch.Infrastructure.csproj", "{0701EB11-BDEE-4E5C-9ED8-2FD0F78807D1}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.WebUI.Server", "BlazorNet8CleanArch.WebUI.Server\BlazorNet8CleanArch.WebUI.Server.csproj", "{C52856CD-7BFA-41F7-94AA-B124081AD93C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorNet8CleanArch.Infrastructure", "BlazorNet8CleanArch.Infrastructure\BlazorNet8CleanArch.Infrastructure.csproj", "{0701EB11-BDEE-4E5C-9ED8-2FD0F78807D1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorPageScript", "BlazorPageScript\BlazorPageScript.csproj", "{14919024-1466-4DE3-AC96-276360575D91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.WebUI", "BlazorNet8CleanArch.WebUI\BlazorNet8CleanArch.WebUI\BlazorNet8CleanArch.WebUI.csproj", "{A666A5B0-E028-4ADC-9767-ED7A70BB4834}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.WebUI.Client", "BlazorNet8CleanArch.WebUI\BlazorNet8CleanArch.WebUI.Client\BlazorNet8CleanArch.WebUI.Client.csproj", "{CA93C5E6-D66E-4545-BB40-AD17BD569ED2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,14 +35,18 @@ Global
 		{0701EB11-BDEE-4E5C-9ED8-2FD0F78807D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0701EB11-BDEE-4E5C-9ED8-2FD0F78807D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0701EB11-BDEE-4E5C-9ED8-2FD0F78807D1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C52856CD-7BFA-41F7-94AA-B124081AD93C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C52856CD-7BFA-41F7-94AA-B124081AD93C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C52856CD-7BFA-41F7-94AA-B124081AD93C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C52856CD-7BFA-41F7-94AA-B124081AD93C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{14919024-1466-4DE3-AC96-276360575D91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{14919024-1466-4DE3-AC96-276360575D91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14919024-1466-4DE3-AC96-276360575D91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14919024-1466-4DE3-AC96-276360575D91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A666A5B0-E028-4ADC-9767-ED7A70BB4834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A666A5B0-E028-4ADC-9767-ED7A70BB4834}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A666A5B0-E028-4ADC-9767-ED7A70BB4834}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A666A5B0-E028-4ADC-9767-ED7A70BB4834}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA93C5E6-D66E-4545-BB40-AD17BD569ED2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA93C5E6-D66E-4545-BB40-AD17BD569ED2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA93C5E6-D66E-4545-BB40-AD17BD569ED2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA93C5E6-D66E-4545-BB40-AD17BD569ED2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,8 +55,9 @@ Global
 		{C4F4E352-5310-4037-9310-846900C45F2B} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
 		{7951D387-7A0A-4689-BE47-B92CB1BBC938} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
 		{0701EB11-BDEE-4E5C-9ED8-2FD0F78807D1} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
-		{C52856CD-7BFA-41F7-94AA-B124081AD93C} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
 		{14919024-1466-4DE3-AC96-276360575D91} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
+		{A666A5B0-E028-4ADC-9767-ED7A70BB4834} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
+		{CA93C5E6-D66E-4545-BB40-AD17BD569ED2} = {14D2B134-66AC-4695-B1F9-3FDC9CBA505E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {42955F1C-2453-4156-BE68-F720296BD0AC}
