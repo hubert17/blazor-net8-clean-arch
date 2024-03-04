@@ -1,7 +1,16 @@
-﻿@page "/login"
+﻿@page "/"
+@page "/login"
 @layout Layout.LoginLayout
 
+@inject IJSRuntime JSRuntime
+@inject HttpClient HttpClient
 
+<style>
+    body { 
+        background-image: url("@backgroundImageUrl");
+        background-size: cover;
+    }
+</style>
 
 <MudText Typo="Typo.h4" GutterBottom="true">Sign In</MudText>
 
@@ -13,7 +22,7 @@
 
 <div Class="d-flex justify-space-between align-center">
     <MudCheckBox T="bool" Label="Remember me?" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
-    <MudLink Href="/pages/authentication/forgot-password">Forgot pwd?</MudLink>
+    <MudLink Href="/pages/authentication/forgot-password">Forgot password?</MudLink>
 </div>
 
 
@@ -41,4 +50,49 @@
             PasswordInput = InputType.Text;
         }
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBingWallpapers();
+        await SetBackgroundImage();
+    }
+
+    public record BingPhoto(string url);
+    private List<BingPhoto> bingPhotos = null;
+    private string backgroundImageUrl = "";
+
+    private async Task GetBingWallpapers()
+    {
+        try
+        {
+            var response = await HttpClient.GetAsync("https://api45gabs.azurewebsites.net/api/sample/bingphotos");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonPhotos = await response.Content.ReadAsStringAsync();
+                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos);
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "bingphotos", jsonPhotos);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching Bing photos: {ex.Message}");
+        }
+
+        if(bingPhotos == null)
+        {
+            var jsonPhotos = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "bingphotos");
+            if (!string.IsNullOrEmpty(jsonPhotos))
+            {
+                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos);
+            }
+        }
+
+    }
+
+    private async Task SetBackgroundImage()
+    {
+        var imageUrl = bingPhotos?.FirstOrDefault()?.url ?? "/th?id=OHR.BurleighHeads_EN-US4425800469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp";
+        backgroundImageUrl = $"https://bing.com{imageUrl}";
+    }
+    
 }

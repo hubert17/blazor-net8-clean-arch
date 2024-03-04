@@ -14,6 +14,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddMudServices();
 
 var app = builder.Build();
