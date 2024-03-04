@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorNet8CleanArch.Infrast
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorNet8CleanArch.WebUI.Client", "BlazorNet8CleanArch.WebUI.Client\BlazorNet8CleanArch.WebUI.Client.csproj", "{180BFBEB-C2EE-42C3-AC8D-DD68CC32A2E7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorNet8CleanArch.WebUI", "BlazorNet8CleanArch.WebUI\BlazorNet8CleanArch.WebUI.csproj", "{86875E57-2292-464E-8264-1E7E951782E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorNet8CleanArch.WebUI", "BlazorNet8CleanArch.WebUI\BlazorNet8CleanArch.WebUI.csproj", "{86875E57-2292-464E-8264-1E7E951782E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

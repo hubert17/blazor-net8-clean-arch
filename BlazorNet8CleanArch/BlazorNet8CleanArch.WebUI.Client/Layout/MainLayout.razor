@@ -4,14 +4,14 @@
 <MyMudProviders />
 
 <MudLayout>
-    <MudAppBar Elevation="1">
+    <MudAppBar Elevation="4">
         <MudHidden Breakpoint="Breakpoint.SmAndDown">
             <MudIcon Icon="@Icons.Custom.Brands.MudBlazor" Size="Size.Large" />
         </MudHidden>
         <MudHidden Breakpoint="Breakpoint.MdAndUp">
             <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
         </MudHidden>
-        <MudText Typo="Typo.h5" Class="ml-3">Gablazor App</MudText>
+        <MudText Typo="Typo.h6" Class="ml-3">Gablazor App</MudText>
 
         <MudSpacer />
         <MudMenu Direction="Direction.Left" OffsetX="true" Dense="true" Class="mt-1 ml-4">
@@ -25,7 +25,7 @@
         </MudMenu>
         
     </MudAppBar>
-    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Responsive" Elevation="6">
         <NavMenu />
     </MudDrawer>
     <MudMainContent>

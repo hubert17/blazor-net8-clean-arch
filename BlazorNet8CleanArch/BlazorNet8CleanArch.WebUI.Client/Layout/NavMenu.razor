@@ -1,24 +1,33 @@
 ﻿<style>
-    .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled){
-        background-color: #B0BEC5;
+    .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) {
+        background-color: #90A4AE;
+    }
+
+    .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) .mud-nav-link-text {
+        color: #fff;
     }
 </style>
 
-<MudNavMenu Class="my-custom-navmenu">
-    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home">Home</MudNavLink>
-    <MudNavLink Href="weather" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.WaterDrop">Weather</MudNavLink>
-    <MudNavLink Href="counter" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.PlusOne">Counter</MudNavLink>
+<MudList>
+    <MudListItem>
+        <MudNavMenu Class="my-custom-navmenu">
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home" Class="rounded">Home</MudNavLink>
+            <MudNavLink Href="weather" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.WaterDrop" Class="rounded">Weather</MudNavLink>
+            <MudNavLink Href="counter" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.PlusOne" Class="rounded">Counter</MudNavLink>
 
-    <MudDivider Class="mb-4" />
+            <MudDivider Class="mb-4" />
 
-    <MudText Typo="Typo.subtitle2" Color="Color.Inherit" Class="ml-4 my-3">Links</MudText>
-    <MudNavLink Href="https://mudblazor.com" Icon="@Icons.Material.Outlined.Code" Target="_blank">MudBlazor</MudNavLink>
-    <MudNavLink Href="https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor" Icon="@Icons.Material.Outlined.Code" Target="_blank">Blazor</MudNavLink>
-    <MudNavLink Href="https://dotnet.microsoft.com/en-us/apps/aspnet" Icon="@Icons.Material.Outlined.Code" Target="_blank">ASP.NET</MudNavLink>
+            <MudText Typo="Typo.subtitle2" Color="Color.Inherit" Class="ml-4 my-3">Links</MudText>
+            <MudNavLink Href="https://mudblazor.com" Icon="@Icons.Material.Outlined.Code" Target="_blank">MudBlazor</MudNavLink>
+            <MudNavLink Href="https://dotnet.microsoft.com/en-us/apps/aspnet/web-apps/blazor" Icon="@Icons.Material.Outlined.Code" Target="_blank">Blazor</MudNavLink>
+            <MudNavLink Href="https://dotnet.microsoft.com/en-us/apps/aspnet" Icon="@Icons.Material.Outlined.Code" Target="_blank">ASP.NET</MudNavLink>
 
-    <MudNavGroup Title="About Me" Icon="@Icons.Material.Outlined.Person" HideExpandIcon="true">
-        <MudNavLink Href="https://github.com/hubert17" Icon="@Icons.Material.Outlined.Code">Github</MudNavLink>
-        <MudNavLink Href="https://bernardgabon.com" Icon="@Icons.Material.Outlined.Web">BernardGabon.com</MudNavLink>
-    </MudNavGroup>
+            <MudNavGroup Title="About Me" Icon="@Icons.Material.Outlined.Person" HideExpandIcon="true">
+                <MudNavLink Href="https://github.com/hubert17" Icon="@Icons.Material.Outlined.Code">Github</MudNavLink>
+                <MudNavLink Href="https://bernardgabon.com" Icon="@Icons.Material.Outlined.Web">BernardGabon.com</MudNavLink>
+            </MudNavGroup>
 
-</MudNavMenu>
+        </MudNavMenu>
+    </MudListItem>
+</MudList>
+
