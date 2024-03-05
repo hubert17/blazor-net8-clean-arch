@@ -12,6 +12,8 @@
     }
 </style>
 
+<PageTitle>Gablazor App - Login</PageTitle>
+
 <MudText Typo="Typo.h4" GutterBottom="true">Sign In</MudText>
 
 <MudText>Don't have an account? <MudLink Href="/register">Sign Up</MudLink></MudText>
@@ -53,15 +55,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetBingWallpapers();
-        await SetBackgroundImage();
+        await SetBackgroundWithBingWallpapers();
     }
 
-    public record BingPhoto(string url);
-    private List<BingPhoto> bingPhotos = null;
+    private record BingPhoto(string url);
+    private List<BingPhoto> bingPhotos = null!;
     private string backgroundImageUrl = "";
 
-    private async Task GetBingWallpapers()
+    private async Task SetBackgroundWithBingWallpapers()
     {
         try
         {
@@ -69,7 +70,7 @@
             if (response.IsSuccessStatusCode)
             {
                 var jsonPhotos = await response.Content.ReadAsStringAsync();
-                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos);
+                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "bingphotos", jsonPhotos);
             }
         }
@@ -83,14 +84,10 @@
             var jsonPhotos = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "bingphotos");
             if (!string.IsNullOrEmpty(jsonPhotos))
             {
-                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos);
+                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
             }
         }
 
-    }
-
-    private async Task SetBackgroundImage()
-    {
         var imageUrl = bingPhotos?.FirstOrDefault()?.url ?? "/th?id=OHR.BurleighHeads_EN-US4425800469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp";
         backgroundImageUrl = $"https://bing.com{imageUrl}";
     }
