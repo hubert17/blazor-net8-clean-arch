@@ -3,9 +3,10 @@
 @layout Layout.LoginLayout
 
 @using BlazorNet8CleanArch.Infrastructure.Authentication
+@using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Components.Authorization
 
-@inject IJSRuntime JSRuntime
+@inject ILocalStorageService localStorage
 @inject HttpClient HttpClient
 @inject NavigationManager NavManager
 @inject ISnackbar snackBar
@@ -16,6 +17,7 @@
     body { 
         background-image: url("@backgroundImageUrl");
         background-size: cover;
+        background-color: @backgroundColor;
     }
 </style>
 
@@ -31,11 +33,11 @@
 
 <div Class="d-flex justify-space-between align-center">
     <MudCheckBox T="bool" Label="Remember me?" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
-    <MudLink Href="/pages/authentication/forgot-password">Forgot password?</MudLink>
+    <MudLink Href="#">Forgot password?</MudLink>
 </div>
 
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoginClicked" Size="Size.Large" FullWidth="true">Sign In</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="LoginClicked" Disabled="@isSubmitting">Sign In</MudButton>
 
 @code {
 
@@ -44,9 +46,11 @@
 
     string Username = "admin";
     string Password = "admin123";
+    bool isSubmitting = false;
 
     async Task LoginClicked()
     {
+        isSubmitting = true;
         var response = await HttpClient.PostAsJsonAsync($"/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
         if (response.IsSuccessStatusCode)
         {
@@ -56,13 +60,22 @@
             NavManager.NavigateTo("/home");
         }
         else
+        {
             snackBar.Add("Invalid login.", Severity.Error);
+            isSubmitting = false;
+        }
+        
     }
 
     protected override async Task OnInitializedAsync()
     {
         await SetBackgroundWithBingWallpapers();
     }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     await SetBackgroundWithBingWallpapers();
+    // }
 
     #region UI:PasswordVisibility
     bool PasswordVisibility;
@@ -92,6 +105,7 @@
     private record BingPhoto(string url);
     private List<BingPhoto> bingPhotos = null!;
     private string backgroundImageUrl = "";
+    private string backgroundColor = "inherit";
 
     private async Task SetBackgroundWithBingWallpapers()
     {
@@ -102,25 +116,31 @@
             {
                 var jsonPhotos = await response.Content.ReadAsStringAsync();
                 bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
-                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "bingphotos", jsonPhotos);
+                await localStorage.SetItemAsStringAsync("bingphotos", jsonPhotos);
             }
         }
         catch (Exception ex)
         {
+
             Console.WriteLine($"Error fetching Bing photos: {ex.Message}");
         }
 
         if (bingPhotos == null)
         {
-            var jsonPhotos = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "bingphotos");
+            var jsonPhotos = await localStorage.GetItemAsStringAsync("bingphotos");
             if (!string.IsNullOrEmpty(jsonPhotos))
             {
                 bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
             }
         }
 
-        var imageUrl = bingPhotos?.FirstOrDefault()?.url ?? "/th?id=OHR.BurleighHeads_EN-US4425800469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp";
-        backgroundImageUrl = $"https://bing.com{imageUrl}";
+        var bingImage = bingPhotos?.FirstOrDefault();
+        if (bingImage != null)
+            backgroundImageUrl = $"https://bing.com{bingImage.url}";
+        else
+            backgroundColor = "#263238";
+
+        // #263238
     }
     #endregion
 }
