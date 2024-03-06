@@ -1,7 +1,20 @@
 ﻿@inherits LayoutComponentBase
 
+@using Blazored.LocalStorage
+
+@inject ILocalStorageService localStorage
+@inject HttpClient HttpClient
+
 <MyMudThemeProvider />
 <MyMudProviders />
+
+<style>
+    body {
+        background-image: url("@backgroundImageUrl");
+        background-size: cover;
+        background-color: #263238;
+    }
+</style>
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="height: 100vh;">
     <div class="d-flex flex-column mud-width-full">
@@ -16,3 +29,54 @@
         </MudPaper>       
     </div>
 </MudContainer>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await SetBackgroundWithBingWallpapers();
+    }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     await SetBackgroundWithBingWallpapers();
+    // }
+
+    #region UI:BingWallpapaer
+    private record BingPhoto(string url);
+    private List<BingPhoto> bingPhotos = null!;
+    private string backgroundImageUrl = "";
+
+    private async Task SetBackgroundWithBingWallpapers()
+    {
+        try
+        {
+            var response = await HttpClient.GetAsync("https://api45gabs.azurewebsites.net/api/sample/bingphotos");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonPhotos = await response.Content.ReadAsStringAsync();
+                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
+                await localStorage.SetItemAsStringAsync("bingphotos", jsonPhotos);
+            }
+        }
+        catch (Exception ex)
+        {
+
+            Console.WriteLine($"Error fetching Bing photos: {ex.Message}");
+        }
+
+        if (bingPhotos == null)
+        {
+            var jsonPhotos = await localStorage.GetItemAsStringAsync("bingphotos");
+            if (!string.IsNullOrEmpty(jsonPhotos))
+            {
+                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
+            }
+        }
+
+        var bingImage = bingPhotos?.FirstOrDefault();
+        if (bingImage != null)
+            backgroundImageUrl = $"https://bing.com{bingImage.url}";
+
+    }
+    #endregion
+}
