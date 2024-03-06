@@ -2,8 +2,15 @@
 @page "/login"
 @layout Layout.LoginLayout
 
+@using BlazorNet8CleanArch.Infrastructure.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
+
 @inject IJSRuntime JSRuntime
 @inject HttpClient HttpClient
+@inject NavigationManager NavManager
+@inject ISnackbar snackBar
+
+@inject AuthenticationStateProvider AuthStateProvider
 
 <style>
     body { 
@@ -18,7 +25,7 @@
 
 <MudText>Don't have an account? <MudLink Href="/register">Sign Up</MudLink></MudText>
 
-<MudTextField T="string" Value="@("staff@mudblazor.com")" Label="E-mail" Variant="Variant.Outlined" Class="my-6"></MudTextField>
+<MudTextField T="string" @bind-Value="@Username" Label="E-mail" Variant="Variant.Outlined" Class="my-6"></MudTextField>
 
 <MudTextField @bind-Value="@Password" Label="Password" Variant="Variant.Outlined" InputType="@PasswordInput" Adornment="Adornment.End" AdornmentIcon="@PasswordInputIcon" OnAdornmentClick="TogglePasswordVisibility" />
 
@@ -28,11 +35,36 @@
 </div>
 
 
-<MudButton Variant="Variant.Filled" Color="Color.Primary" Link="/personal/dashboard" Size="Size.Large" FullWidth="true">Sign In</MudButton>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoginClicked" Size="Size.Large" FullWidth="true">Sign In</MudButton>
 
 @code {
-    string Password { get; set; } = "BMWvBPJXZu";
 
+    public record LoginResponse(string Username = null!, string Token = null!);
+    public record LoginDTO(string Username, string Password);
+
+    string Username = "admin";
+    string Password = "admin123";
+
+    async Task LoginClicked()
+    {
+        var response = await HttpClient.PostAsJsonAsync($"/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
+        if (response.IsSuccessStatusCode)
+        {
+            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
+            customAuthStateProvider.UpdateAuthenticationState(result!.Token);
+            NavManager.NavigateTo("/home");
+        }
+        else
+            snackBar.Add("Invalid login.", Severity.Error);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await SetBackgroundWithBingWallpapers();
+    }
+
+    #region UI:PasswordVisibility
     bool PasswordVisibility;
     InputType PasswordInput = InputType.Password;
     string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
@@ -52,12 +84,11 @@
             PasswordInput = InputType.Text;
         }
     }
+    #endregion
 
-    protected override async Task OnInitializedAsync()
-    {
-        await SetBackgroundWithBingWallpapers();
-    }
 
+
+    #region UI:BingWallpapaer
     private record BingPhoto(string url);
     private List<BingPhoto> bingPhotos = null!;
     private string backgroundImageUrl = "";
@@ -79,7 +110,7 @@
             Console.WriteLine($"Error fetching Bing photos: {ex.Message}");
         }
 
-        if(bingPhotos == null)
+        if (bingPhotos == null)
         {
             var jsonPhotos = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "bingphotos");
             if (!string.IsNullOrEmpty(jsonPhotos))
@@ -91,5 +122,5 @@
         var imageUrl = bingPhotos?.FirstOrDefault()?.url ?? "/th?id=OHR.BurleighHeads_EN-US4425800469_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp";
         backgroundImageUrl = $"https://bing.com{imageUrl}";
     }
-    
+    #endregion
 }

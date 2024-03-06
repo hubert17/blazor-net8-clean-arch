@@ -21,4 +21,8 @@
     <PackageReference Include="MudBlazor" Version="6.16.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BlazorNet8CleanArch.Infrastructure\BlazorNet8CleanArch.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

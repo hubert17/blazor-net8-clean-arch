@@ -1,7 +1,27 @@
 ﻿@page "/home"
+@attribute [Authorize]
 
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
-Welcome to your new app.
+<p>Welcome to Gablazor app. </p>
+<p>This webapp is currently running as <strong>@handler</strong>.</p>
+
+
+@code
+{
+    string handler;
+
+    protected override void OnInitialized()
+    {
+        if (OperatingSystem.IsBrowser())
+        {
+            handler = "WASM";
+        }
+        else
+        {
+            handler = "Server";
+        }
+    }
+}

@@ -1,114 +1,134 @@
-﻿using BlazorNet8CleanArch.Infrastructure.Constants;
+﻿using Blazored.LocalStorage;
+using BlazorNet8CleanArch.Infrastructure.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
+using static System.Net.WebRequestMethods;
 
 namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
+    public class AddHeadersDelegatingHandler : DelegatingHandler
+    {
+        public AddHeadersDelegatingHandler() : base(new HttpClientHandler())
+        {
+        }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            request.Headers.Add("Bearer", StorageConstants.Local.JWTToken);  // Add whatever headers you want here
+
+            return base.SendAsync(request, cancellationToken);
+        }
+    }
+
+    public record CustomUserClaims(string Name = null!, string Email = null!);
+
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly HttpClient _httpClient;
+        readonly ClaimsPrincipal anonymous = new(new ClaimsIdentity());
+        readonly ILocalStorageService _localStorage;
 
-        public CustomAuthenticationStateProvider(HttpClient httpClient)
+        public CustomAuthenticationStateProvider(ILocalStorageService localStorage)
         {
-            _httpClient = httpClient;
+            _localStorage = localStorage;
         }
-
-        public async Task StateChangedAsync()
-        {
-            var authState = Task.FromResult(await GetAuthenticationStateAsync());
-
-            NotifyAuthenticationStateChanged(authState);
-        }
-
-        public void MarkUserAsLoggedOut()
-        {
-            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-            var authState = Task.FromResult(new AuthenticationState(anonymousUser));
-
-            NotifyAuthenticationStateChanged(authState);
-        }
-
-        public async Task<ClaimsPrincipal> GetAuthenticationStateProviderUserAsync()
-        {
-            var state = await this.GetAuthenticationStateAsync();
-            var authenticationStateProviderUser = state.User;
-            return authenticationStateProviderUser;
-        }
-
-        public ClaimsPrincipal AuthenticationStateUser { get; set; }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var savedToken = StorageConstants.Local.AuthToken;
-            if (string.IsNullOrWhiteSpace(savedToken))
+            try
             {
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-            }
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", savedToken);
-            var state = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(GetClaimsFromJwt(savedToken), "jwt")));
-            AuthenticationStateUser = state.User;
-            return state;
-        }
-
-        private IEnumerable<Claim> GetClaimsFromJwt(string jwt)
-        {
-            var claims = new List<Claim>();
-            var payload = jwt.Split('.')[1];
-            var jsonBytes = ParseBase64WithoutPadding(payload);
-            var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-
-            if (keyValuePairs != null)
-            {
-                keyValuePairs.TryGetValue(ClaimTypes.Role, out var roles);
-
-                if (roles != null)
+                var jwtToken = await GetToken();
+                if (string.IsNullOrEmpty(jwtToken))
+                    return await Task.FromResult(new AuthenticationState(anonymous));
+                else
                 {
-                    if (roles.ToString().Trim().StartsWith("["))
-                    {
-                        var parsedRoles = JsonSerializer.Deserialize<string[]>(roles.ToString());
-
-                        claims.AddRange(parsedRoles.Select(role => new Claim(ClaimTypes.Role, role)));
-                    }
+                    var getUserClaims = DecryptToken(jwtToken);
+                    if (getUserClaims == null)
+                        return await Task.FromResult(new AuthenticationState(anonymous));
                     else
                     {
-                        claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
+                        var claimsPrincipal = SetClaimPrincipal(getUserClaims);
+                        return await Task.FromResult(new AuthenticationState(claimsPrincipal));
                     }
-
-                    keyValuePairs.Remove(ClaimTypes.Role);
                 }
-
-                keyValuePairs.TryGetValue(ApplicationClaimTypes.Permission, out var permissions);
-                if (permissions != null)
-                {
-                    if (permissions.ToString().Trim().StartsWith("["))
-                    {
-                        var parsedPermissions = JsonSerializer.Deserialize<string[]>(permissions.ToString());
-                        claims.AddRange(parsedPermissions.Select(permission => new Claim(ApplicationClaimTypes.Permission, permission)));
-                    }
-                    else
-                    {
-                        claims.Add(new Claim(ApplicationClaimTypes.Permission, permissions.ToString()));
-                    }
-                    keyValuePairs.Remove(ApplicationClaimTypes.Permission);
-                }
-
-                claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
             }
-            return claims;
+            catch
+            {
+                return await Task.FromResult(new AuthenticationState(anonymous));
+            }
         }
 
-        private byte[] ParseBase64WithoutPadding(string payload)
+        public ClaimsPrincipal SetClaimPrincipal(CustomUserClaims claims)
         {
-            payload = payload.Trim().Replace('-', '+').Replace('_', '/');
-            var base64 = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
-            return Convert.FromBase64String(base64);
+            if (string.IsNullOrEmpty(claims.Name))
+                return new ClaimsPrincipal();
+            else
+                return new ClaimsPrincipal(new ClaimsIdentity(
+                    new List<Claim>
+                    {
+                        new(ClaimTypes.Name, claims.Name),
+                        new(ClaimTypes.Email, claims.Name)
+                    }, "JwtAuth"));
+        }
+
+        private async void SaveToken(string jwtToken)
+        {
+            StorageConstants.Local.JWTToken = jwtToken;
+            try
+            {
+                await _localStorage.SetItemAsync("jwtToken", jwtToken);
+            }
+            catch { }
+        }
+
+        private async Task<string?> GetToken()
+        {
+            try
+            {
+                return await _localStorage.GetItemAsStringAsync("jwtToken");
+            }
+            catch 
+            {
+                return StorageConstants.Local.JWTToken;
+            }
+        }
+
+        public async void UpdateAuthenticationState(string jwtToken)
+        {
+            var claimsPrincipal = new ClaimsPrincipal();
+            if (!string.IsNullOrEmpty(jwtToken))
+            {
+                SaveToken(jwtToken);
+
+                var getUserClaims = DecryptToken(jwtToken);
+                claimsPrincipal = SetClaimPrincipal(getUserClaims);
+            }
+            else
+            {
+                SaveToken(null!);
+            }
+
+            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
+        }
+
+        private CustomUserClaims DecryptToken(string jwtToken)
+        {
+            if (string.IsNullOrEmpty(jwtToken))
+                return new CustomUserClaims();
+            else
+            {
+                var handler = new JwtSecurityTokenHandler();
+                var token = handler.ReadJwtToken(jwtToken);
+
+                var name = token.Claims.FirstOrDefault(x => x.Type == "unique_name");
+                return new CustomUserClaims(name!.Value, name!.Value);
+            }
+
         }
     }
 }

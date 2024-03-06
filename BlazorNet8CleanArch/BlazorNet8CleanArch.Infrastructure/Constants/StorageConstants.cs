@@ -12,7 +12,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Constants
         {
             public static string Preference = "clientPreference";
 
-            public static string AuthToken = "authToken";
+            public static string JWTToken = "authToken";
             public static string RefreshToken = "refreshToken";
             public static string UserImageURL = "userImageURL";
         }

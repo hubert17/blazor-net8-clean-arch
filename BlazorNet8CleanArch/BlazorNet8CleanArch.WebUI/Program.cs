@@ -3,6 +3,9 @@ using BlazorNet8CleanArch.WebUI.Components;
 using BlazorNet8CleanArch.Application;
 using BlazorNet8CleanArch.Infrastructure;
 using MudBlazor.Services;
+using BlazorNet8CleanArch.Infrastructure.Authentication;
+using Microsoft.AspNetCore.Components.Authorization;
+using Blazored.LocalStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,7 +17,9 @@ builder.Services.AddRazorComponents()
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-builder.Services.AddHttpClient();
+builder.Services.AddAuthenticationCore();
+
+
 
 builder.Services.AddMudServices();
 
