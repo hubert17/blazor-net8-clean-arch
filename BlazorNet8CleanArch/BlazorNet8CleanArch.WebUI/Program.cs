@@ -6,6 +6,7 @@ using MudBlazor.Services;
 using BlazorNet8CleanArch.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Blazored.LocalStorage;
+using MudExtensions.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +23,7 @@ builder.Services.AddAuthenticationCore();
 
 
 builder.Services.AddMudServices();
+builder.Services.AddMudExtensions();
 
 var app = builder.Build();
 

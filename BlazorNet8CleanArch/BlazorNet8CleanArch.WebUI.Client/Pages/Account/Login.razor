@@ -26,8 +26,7 @@
     <MudLink Href="#">Forgot password?</MudLink>
 </div>
 
-
-<MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" OnClick="LoginClicked" Disabled="@isSubmitting">Sign In</MudButton>
+<MudLoadingButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" @bind-Loading="isSubmitting" LoadingAdornment="_adornment" OnClick="LoginClicked">Sign In</MudLoadingButton>
 
 @code {
 
@@ -37,11 +36,13 @@
     string Username = "admin";
     string Password = "admin123";
     bool isSubmitting = false;
+    Adornment _adornment = Adornment.Start;
 
     async Task LoginClicked()
     {
         isSubmitting = true;
         var response = await HttpClient.PostAsJsonAsync($"/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
+        await Task.Delay(5000);
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
