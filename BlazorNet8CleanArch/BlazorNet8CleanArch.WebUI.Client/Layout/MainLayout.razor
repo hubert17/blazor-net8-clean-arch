@@ -1,5 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
+@using Blazored.LocalStorage
+
+@inject ILocalStorageService localStorage
+@inject NavigationManager NavManager
+
 <MyMudThemeProvider />
 <MyMudProviders />
 
@@ -19,8 +24,8 @@
                 <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
             </ActivatorContent>
             <ChildContent>
-                <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="/personal/account" />
-                <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" Href="/pages/authentication/login" />
+                <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="#" />
+                <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" OnClick="@(() => Logout())" />
             </ChildContent>
         </MudMenu>
         
@@ -47,5 +52,11 @@
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
+    }
+
+    async void Logout()
+    {
+        await localStorage.RemoveItemAsync("jwtToken");
+        NavManager.NavigateTo("/login", forceLoad: true);
     }
 }
