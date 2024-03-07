@@ -33,13 +33,15 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        await SetBackgroundWithBingWallpapers();
+        try
+        {
+            await SetBackgroundWithBingWallpapers();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"SetBackgroundWithBingWallpapers(): {ex.Message}");
+        }
     }
-
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     await SetBackgroundWithBingWallpapers();
-    // }
 
     #region UI:BingWallpapaer
     private record BingPhoto(string url);
