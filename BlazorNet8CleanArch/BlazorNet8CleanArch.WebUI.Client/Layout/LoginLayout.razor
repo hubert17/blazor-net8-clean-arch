@@ -50,12 +50,22 @@
 
     private async Task SetBackgroundWithBingWallpapers()
     {
+        var jsonPhotos = await localStorage.GetItemAsStringAsync("bingphotos");
+        if (!string.IsNullOrEmpty(jsonPhotos))
+        {
+            bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
+
+            var bingImage = bingPhotos?.FirstOrDefault();
+            if (bingImage != null)
+                backgroundImageUrl = $"https://bing.com{bingImage.url}";
+        }
+
         try
         {
             var response = await HttpClient.GetAsync("https://api45gabs.azurewebsites.net/api/sample/bingphotos");
             if (response.IsSuccessStatusCode)
             {
-                var jsonPhotos = await response.Content.ReadAsStringAsync();
+                jsonPhotos = await response.Content.ReadAsStringAsync();
                 bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
                 await localStorage.SetItemAsStringAsync("bingphotos", jsonPhotos);
             }
@@ -65,19 +75,6 @@
 
             Console.WriteLine($"Error fetching Bing photos: {ex.Message}");
         }
-
-        if (bingPhotos == null)
-        {
-            var jsonPhotos = await localStorage.GetItemAsStringAsync("bingphotos");
-            if (!string.IsNullOrEmpty(jsonPhotos))
-            {
-                bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
-            }
-        }
-
-        var bingImage = bingPhotos?.FirstOrDefault();
-        if (bingImage != null)
-            backgroundImageUrl = $"https://bing.com{bingImage.url}";
 
     }
     #endregion

@@ -3,10 +3,12 @@ using BlazorNet8CleanArch.Infrastructure.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 
@@ -26,7 +28,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
         }
     }
 
-    public record CustomUserClaims(string Name = null!, string Email = null!);
+    public record CustomUserClaims(string Name = null!, string[] Roles = null!);
 
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
@@ -63,17 +65,24 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             }
         }
 
-        public ClaimsPrincipal SetClaimPrincipal(CustomUserClaims claims)
+        public ClaimsPrincipal SetClaimPrincipal(CustomUserClaims customUserClaims)
         {
-            if (string.IsNullOrEmpty(claims.Name))
+            if (string.IsNullOrEmpty(customUserClaims.Name))
                 return new ClaimsPrincipal();
             else
-                return new ClaimsPrincipal(new ClaimsIdentity(
-                    new List<Claim>
-                    {
-                        new(ClaimTypes.Name, claims.Name),
-                        new(ClaimTypes.Email, claims.Name)
-                    }, "JwtAuth"));
+            {
+                var claims = new List<Claim>
+                {
+                    new(ClaimTypes.Name, customUserClaims.Name),
+                    new(ClaimTypes.Email, customUserClaims.Name),
+                };
+                foreach (var role in customUserClaims.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
+                return new ClaimsPrincipal(new ClaimsIdentity(claims, "JwtAuth"));
+            }
+
         }
 
         private async void SaveToken(string jwtToken)
@@ -98,7 +107,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             }
         }
 
-        public async void UpdateAuthenticationState(string jwtToken)
+        public void UpdateAuthenticationState(string jwtToken)
         {
             var claimsPrincipal = new ClaimsPrincipal();
             if (!string.IsNullOrEmpty(jwtToken))
@@ -125,10 +134,21 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
                 var handler = new JwtSecurityTokenHandler();
                 var token = handler.ReadJwtToken(jwtToken);
 
-                var name = token.Claims.FirstOrDefault(x => x.Type == "unique_name");
-                return new CustomUserClaims(name!.Value, name!.Value);
-            }
+                var name = token.Claims.FirstOrDefault(x => x.Type == "name");
+                var roles = token.Claims.Where(x => x.Type == "role").Select(s => s.Value).ToArray();
 
+                return new CustomUserClaims(name!.Value, roles);
+            }
+        }
+
+        public async Task MarkUserAsLoggedOut()
+        {
+            await _localStorage.RemoveItemAsync("jwtToken");
+
+            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
+            var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+
+            NotifyAuthenticationStateChanged(authState);
         }
     }
 }

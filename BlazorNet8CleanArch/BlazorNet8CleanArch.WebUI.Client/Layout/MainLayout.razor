@@ -1,7 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
+@using BlazorNet8CleanArch.Infrastructure.Authentication
+@using Microsoft.AspNetCore.Components.Authorization
 @using Blazored.LocalStorage
 
+@inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService localStorage
 @inject NavigationManager NavManager
 
@@ -56,7 +59,7 @@
 
     async void Logout()
     {
-        await localStorage.RemoveItemAsync("jwtToken");
-        NavManager.NavigateTo("/login", forceLoad: true);
+        await ((CustomAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
+        NavManager.NavigateTo("/login");
     }
 }

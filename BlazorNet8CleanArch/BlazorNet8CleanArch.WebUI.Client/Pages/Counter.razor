@@ -1,9 +1,9 @@
 ﻿@page "/counter"
-@attribute [Authorize]
+@attribute [Authorize(Roles = "staff")]
 
 <PageTitle>Counter</PageTitle>
 
-<h1>Counter</h1>
+<h1>Counter, Hello @Username - Role: @roles</h1>
 
 <p role="status" class="gabs">Current count: @currentCount</p>
 
@@ -15,5 +15,22 @@
     private void IncrementCount()
     {
         currentCount++;
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    private string Username = "";
+    string roles = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var state = await authenticationState;
+
+            Username = state?.User?.Identity?.Name ?? string.Empty;
+            var crole = state?.User?.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
+            roles = string.Join(',', crole!.Select(s => s.Value));
+        }
     }
 }
