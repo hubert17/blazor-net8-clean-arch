@@ -1,16 +1,9 @@
 ﻿using Blazored.LocalStorage;
 using BlazorNet8CleanArch.Infrastructure.Constants;
 using Microsoft.AspNetCore.Components.Authorization;
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using static System.Net.WebRequestMethods;
 
 namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
@@ -107,7 +100,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             }
         }
 
-        public void UpdateAuthenticationState(string jwtToken)
+        public void UpdateAuthenticationState(string jwtToken = "")
         {
             var claimsPrincipal = new ClaimsPrincipal();
             if (!string.IsNullOrEmpty(jwtToken))

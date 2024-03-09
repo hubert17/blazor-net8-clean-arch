@@ -14,10 +14,10 @@ namespace BlazorNet8CleanArch.Infrastructure
                 BaseAddress = new Uri("https://api45gabs.azurewebsites.net/")
             });
 
-            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-            services.AddAuthorizationCore();
-
             services.AddBlazoredLocalStorage();
+
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+            services.AddAuthorizationCore();            
 
             // Entity Framework and other 3rd party library
             return services;

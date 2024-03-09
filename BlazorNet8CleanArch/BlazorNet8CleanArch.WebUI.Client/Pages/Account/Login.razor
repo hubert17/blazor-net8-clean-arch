@@ -1,8 +1,11 @@
 ﻿@page "/"
 @page "/login"
+@page "/account/login"
 @layout Layout.LoginLayout
 
 @using BlazorNet8CleanArch.Infrastructure.Authentication
+@using BlazorNet8CleanArch.Infrastructure.Constants
+@using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Components.Authorization
 
 @inject HttpClient HttpClient
@@ -10,6 +13,8 @@
 @inject ISnackbar snackBar
 
 @inject AuthenticationStateProvider AuthStateProvider
+
+@inject ILocalStorageService _localStorage
 
 <PageTitle>Gablazor App - Login</PageTitle>
 
@@ -37,6 +42,10 @@
     string Password = "admin123";
     bool isSubmitting = false;
 
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "ReturnUrl")]
+    public string? ReturnUrl { get; set; }
+
     async Task LoginClicked()
     {
         isSubmitting = true;
@@ -46,14 +55,14 @@
             var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
             var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
             customAuthStateProvider.UpdateAuthenticationState(result!.Token);
-            NavManager.NavigateTo("/home");
+            NavManager.NavigateTo(ReturnUrl ?? "/home");
         }
         else
         {
             snackBar.Add("Invalid login.", Severity.Error);
             isSubmitting = false;
-        }
-        
+        }        
     }
+
 
 }

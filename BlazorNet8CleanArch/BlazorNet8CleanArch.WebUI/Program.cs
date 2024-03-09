@@ -1,12 +1,9 @@
-using BlazorNet8CleanArch.WebUI.Client.Pages;
 using BlazorNet8CleanArch.WebUI.Components;
 using BlazorNet8CleanArch.Application;
 using BlazorNet8CleanArch.Infrastructure;
 using MudBlazor.Services;
-using BlazorNet8CleanArch.Infrastructure.Authentication;
-using Microsoft.AspNetCore.Components.Authorization;
-using Blazored.LocalStorage;
 using MudExtensions.Services;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +15,11 @@ builder.Services.AddRazorComponents()
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
-builder.Services.AddAuthenticationCore();
-
-
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+}).AddIdentityCookies();
 
 builder.Services.AddMudServices();
 builder.Services.AddMudExtensions();
