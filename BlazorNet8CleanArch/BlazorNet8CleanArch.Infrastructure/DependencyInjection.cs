@@ -1,5 +1,4 @@
 ﻿using Blazored.LocalStorage;
-using BlazorNet8CleanArch.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,10 +13,7 @@ namespace BlazorNet8CleanArch.Infrastructure
                 BaseAddress = new Uri("https://api45gabs.azurewebsites.net/")
             });
 
-            services.AddBlazoredLocalStorage();
-
-            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
-            services.AddAuthorizationCore();            
+            services.AddBlazoredLocalStorage();                    
 
             // Entity Framework and other 3rd party library
             return services;

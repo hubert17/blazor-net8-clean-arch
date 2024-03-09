@@ -3,7 +3,6 @@
 @page "/account/login"
 @layout Layout.LoginLayout
 
-@using BlazorNet8CleanArch.Infrastructure.Authentication
 @using BlazorNet8CleanArch.Infrastructure.Constants
 @using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Components.Authorization
@@ -53,7 +52,7 @@
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
-            var customAuthStateProvider = (CustomAuthenticationStateProvider)AuthStateProvider;
+            var customAuthStateProvider = (PersistentAuthenticationStateProvider)AuthStateProvider;
             customAuthStateProvider.UpdateAuthenticationState(result!.Token);
             NavManager.NavigateTo(ReturnUrl ?? "/home");
         }

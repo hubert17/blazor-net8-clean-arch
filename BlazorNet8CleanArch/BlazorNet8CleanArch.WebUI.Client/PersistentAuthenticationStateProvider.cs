@@ -1,11 +1,12 @@
 ﻿using Blazored.LocalStorage;
 using BlazorNet8CleanArch.Infrastructure.Constants;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace BlazorNet8CleanArch.Infrastructure.Authentication
+namespace BlazorNet8CleanArch.WebUI.Client
 {
     public class AddHeadersDelegatingHandler : DelegatingHandler
     {
@@ -21,16 +22,38 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
         }
     }
 
-    public record CustomUserClaims(string Name = null!, string[] Roles = null!);
+    public record UserInfo(string Name = null!, string[] Roles = null!);
 
-    public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+    public class PersistentAuthenticationStateProvider : AuthenticationStateProvider
     {
         readonly ClaimsPrincipal anonymous = new(new ClaimsIdentity());
         readonly ILocalStorageService _localStorage;
 
-        public CustomAuthenticationStateProvider(ILocalStorageService localStorage)
+        private static readonly Task<AuthenticationState> defaultUnauthenticatedTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+        private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
+
+        public PersistentAuthenticationStateProvider(PersistentComponentState state, ILocalStorageService localStorage)
         {
             _localStorage = localStorage;
+
+            if (!state.TryTakeFromJson<UserInfo>(nameof(UserInfo), out var userInfo) || userInfo is null)
+            {
+                return;
+            }
+
+            var claims = new List<Claim>
+                {
+                    new(ClaimTypes.NameIdentifier, userInfo.Name),
+                    new(ClaimTypes.Name, userInfo.Name),
+                    new(ClaimTypes.Email, userInfo.Name),
+                };
+            foreach (var role in userInfo.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            authenticationStateTask = Task.FromResult(
+                new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: nameof(PersistentAuthenticationStateProvider)))));
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -58,7 +81,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             }
         }
 
-        public ClaimsPrincipal SetClaimPrincipal(CustomUserClaims customUserClaims)
+        public ClaimsPrincipal SetClaimPrincipal(UserInfo customUserClaims)
         {
             if (string.IsNullOrEmpty(customUserClaims.Name))
                 return new ClaimsPrincipal();
@@ -66,6 +89,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             {
                 var claims = new List<Claim>
                 {
+                    new(ClaimTypes.NameIdentifier, customUserClaims.Name),
                     new(ClaimTypes.Name, customUserClaims.Name),
                     new(ClaimTypes.Email, customUserClaims.Name),
                 };
@@ -73,7 +97,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
-                return new ClaimsPrincipal(new ClaimsIdentity(claims, "JwtAuth"));
+                return new ClaimsPrincipal(new ClaimsIdentity(claims, authenticationType: nameof(PersistentAuthenticationStateProvider)));
             }
 
         }
@@ -118,10 +142,10 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
         }
 
-        private CustomUserClaims DecryptToken(string jwtToken)
+        private UserInfo DecryptToken(string jwtToken)
         {
             if (string.IsNullOrEmpty(jwtToken))
-                return new CustomUserClaims();
+                return new UserInfo();
             else
             {
                 var handler = new JwtSecurityTokenHandler();
@@ -130,7 +154,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
                 var name = token.Claims.FirstOrDefault(x => x.Type == "name");
                 var roles = token.Claims.Where(x => x.Type == "role").Select(s => s.Value).ToArray();
 
-                return new CustomUserClaims(name!.Value, roles);
+                return new UserInfo(name!.Value, roles);
             }
         }
 
