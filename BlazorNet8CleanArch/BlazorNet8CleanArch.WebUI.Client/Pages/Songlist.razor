@@ -1,0 +1,134 @@
+﻿@page "/songlist"
+
+@inject HttpClient httpClient
+@inject ISnackbar snackBar
+@inject IDialogService DialogService
+
+<style>
+    .action-button {
+        visibility: hidden;
+    }
+    tr:hover .action-button{
+        visibility: visible;
+    }
+</style>
+
+<MudTable T="SongModel" ServerData="@(new Func<TableState, Task<TableData<SongModel>>>(GetServerData))" Elevation="25" Hover="true" @bind-song="song" @ref="table">
+    <ToolBarContent>
+        <MudText Typo="Typo.h4">Song List</MudText>
+        <MudSpacer />
+        <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>ID</MudTh>
+        <MudTh>Title</MudTh>
+        <MudTh>Artist</MudTh>
+        <MudTh>Release Year</MudTh>
+        <MudTh>Actions</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+        <MudTd DataLabel="Artist">@context.Artist</MudTd>
+        <MudTd DataLabel="Year">@context.ReleaseYear</MudTd>
+        <MudTd DataLabel="">
+            <div class="ma-n4 action-button">
+                <MudFab OnClick="@(()=>Edit(@context))" Color="Color.Primary" Icon="@Icons.Material.Filled.Edit" Size="Size.Small" IconSize="Size.Small" />
+                <MudFab OnClick="@(()=>Delete(@context))" Color="Color.Secondary" Icon="@Icons.Material.Filled.Delete" Size="Size.Small" IconSize="Size.Small" />
+            </div>
+        </MudTd>
+    </RowTemplate>
+    <NoRecordsContent>
+        <MudText>No matching records found</MudText>
+    </NoRecordsContent>
+    <LoadingContent>
+        <MudText>Loading...</MudText>
+    </LoadingContent>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private List<SongModel> pagedData = new();
+    private MudTable<SongModel> table;
+
+    private int totalItems;
+    private string searchString = null!;
+
+    private SongModel song = new SongModel();
+
+    bool IsRowHovered { get; set; }
+
+    /// <summary>
+    /// Here we simulate getting the paged, filtered and ordered data from the server
+    /// </summary>
+    private async Task<TableData<SongModel>> GetServerData(TableState state)
+    {
+        //httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
+        var response = await httpClient.GetFromJsonAsync<SongDTO>($"/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
+
+        //songs = response.items;
+
+        pagedData = response!.items; //.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
+        state.Page = response!.pageNumber;
+        state.PageSize = response!.pageSize;
+        return new TableData<SongModel>() { TotalItems = response!.totalItemCount, Items = pagedData };
+    }
+
+    private void OnSearch(string text)
+    {
+        searchString = text;
+        table.ReloadServerData();
+    }
+
+    private async void Save()
+    {
+
+    }
+
+    private void Edit(SongModel s)
+    {
+
+    }
+
+    private async void Delete(SongModel s)
+    {
+        if (s.Id == null) return;
+
+        var parameters = new DialogParameters<MyMudDialog>();
+        parameters.Add(x => x.ContentText, "Do you really want to delete this record? This process cannot be undone.");
+        parameters.Add(x => x.ButtonText, "Delete");
+        parameters.Add(x => x.Color, Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+
+        var dialog = await DialogService.ShowAsync<MyMudDialog>($"Delete | " + string.Concat($"{s.Title} - {s.Artist}".Take(25)) + "...", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            var response = await httpClient.DeleteAsync($"/api/Song/{s.Id}");
+            snackBar.Add("Customer Deleted.", Severity.Warning);
+            await table.ReloadServerData();
+        }
+    }
+
+    public class SongDTO
+    {
+        public int pageNumber { get; set; }
+        public int pageSize { get; set; }
+        public int totalItemCount { get; set; }
+        public int totalPageCount { get; set; }
+        public List<SongModel> items { get; set; }
+    }
+
+    public class SongModel
+    {
+        public int? Id { get; set; } = null;
+        public string Title { get; set; }
+        public string Artist { get; set; }
+        public int ReleaseYear { get; set; }
+    }
+}
