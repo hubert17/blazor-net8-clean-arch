@@ -160,10 +160,10 @@ namespace BlazorNet8CleanArch.WebUI.Client
 
         public async Task MarkUserAsLoggedOut()
         {
+            StorageConstants.Local.JWTToken = string.Empty; 
             await _localStorage.RemoveItemAsync("jwtToken");
 
-            var anonymousUser = new ClaimsPrincipal(new ClaimsIdentity());
-            var authState = Task.FromResult(new AuthenticationState(anonymousUser));
+            var authState = Task.FromResult(new AuthenticationState(anonymous));
 
             NotifyAuthenticationStateChanged(authState);
         }
