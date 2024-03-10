@@ -18,6 +18,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddCascadingAuthenticationState();
 //builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();

@@ -11,6 +11,11 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
 
+builder.Services.AddScoped(sp => new HttpClient //(new AddHeadersDelegatingHandler())
+{
+    BaseAddress = new Uri("https://api45gabs.azurewebsites.net/")
+});
+
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<AuthenticationStateProvider, PersistentAuthenticationStateProvider>();

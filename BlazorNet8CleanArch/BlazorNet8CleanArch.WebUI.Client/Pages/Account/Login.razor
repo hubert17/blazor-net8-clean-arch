@@ -48,7 +48,7 @@
     async Task LoginClicked()
     {
         isSubmitting = true;
-        var response = await HttpClient.PostAsJsonAsync($"/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
+        var response = await HttpClient.PostAsJsonAsync($"https://api45gabs.azurewebsites.net/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
@@ -58,7 +58,10 @@
         }
         else
         {
+            snackBar.Clear();
+            snackBar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
             snackBar.Add("Invalid login.", Severity.Error);
+
             isSubmitting = false;
         }        
     }

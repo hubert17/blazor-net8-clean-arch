@@ -107,7 +107,7 @@ namespace BlazorNet8CleanArch.WebUI.Client
             StorageConstants.Local.JWTToken = jwtToken;
             try
             {
-                await _localStorage.SetItemAsync("jwtToken", jwtToken);
+                await _localStorage.SetItemAsStringAsync("jwtToken", jwtToken);
             }
             catch { }
         }

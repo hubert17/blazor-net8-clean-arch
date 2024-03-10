@@ -1,8 +1,14 @@
 ﻿@page "/songlist"
+@attribute [Authorize]
+
+@using BlazorNet8CleanArch.Infrastructure.Constants
 
 @inject HttpClient httpClient
+
+@inject ILocalStorageService _localStorage
 @inject ISnackbar snackBar
 @inject IDialogService DialogService
+@inject IJSRuntime jsRuntime
 
 <style>
     .action-button {
@@ -15,10 +21,12 @@
 
 <MudTable T="SongModel" ServerData="@(new Func<TableState, Task<TableData<SongModel>>>(GetServerData))" Elevation="25" Hover="true" @bind-song="song" @ref="table">
     <ToolBarContent>
-        <MudText Typo="Typo.h4">Song List</MudText>
+        <MudText Typo="Typo.h4" Class="mt-2">Song List @addEditDialogVisible.ToString()</MudText>
         <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudSpacer />
+        <MudFab OnClick="@(()=>CreateNew())" Color="Color.Primary" Class="mt-4 mr-n2" Icon="@Icons.Material.Filled.Add" Size="Size.Large" IconSize="Size.Medium" />
     </ToolBarContent>
     <HeaderContent>
         <MudTh>ID</MudTh>
@@ -50,24 +58,42 @@
     </PagerContent>
 </MudTable>
 
+<MudDialog @bind-IsVisible="addEditDialogVisible" Options="addEditDialogOptions">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Color="Color.Primary">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" /> @(song.Id == null ? "Add" : "Edit") Song
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true"></MudTextField>
+        <MudTextField @bind-Value="song.Title" Label="Title" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+        <MudTextField @bind-Value="song.Artist" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+        <MudTextField @bind-Value="song.ReleaseYear" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => addEditDialogVisible = false)">Cancel</MudButton>
+        <MudLoadingButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="() => Save()">Save</MudLoadingButton>
+    </DialogActions>
+</MudDialog>
+
 @code {
     private List<SongModel> pagedData = new();
+    private SongModel song = new();
     private MudTable<SongModel> table;
-
     private int totalItems;
     private string searchString = null!;
 
-    private SongModel song = new SongModel();
+    private bool addEditDialogVisible;
+    private DialogOptions addEditDialogOptions = new() { FullWidth = true };
 
-    bool IsRowHovered { get; set; }
+    bool isSubmitting = false;
 
     /// <summary>
     /// Here we simulate getting the paged, filtered and ordered data from the server
     /// </summary>
     private async Task<TableData<SongModel>> GetServerData(TableState state)
-    {
-        //httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", Constants.JWTToken);
-        var response = await httpClient.GetFromJsonAsync<SongDTO>($"/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
+    {       
+        var response = await httpClient.GetFromJsonAsync<SongDTO>($"https://api45gabs.azurewebsites.net/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
 
         //songs = response.items;
 
@@ -83,14 +109,44 @@
         table.ReloadServerData();
     }
 
-    private async void Save()
+    private void CreateNew()
     {
-
+        song = new();
+        addEditDialogVisible = true;
     }
 
     private void Edit(SongModel s)
     {
+        if (s is not null)
+        {
+            song = pagedData.Single(x => x.Id == s.Id);
+            addEditDialogVisible = true;            
+        }        
+    }
 
+    private async Task Save()
+    {
+        isSubmitting = true;
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await GetToken());
+        HttpResponseMessage response;
+        if (song.Id == null)
+            response = await httpClient.PostAsJsonAsync("https://api45gabs.azurewebsites.net/api/Song", song);
+        else
+            response = await httpClient.PutAsJsonAsync("https://api45gabs.azurewebsites.net/api/Song", song);
+
+        isSubmitting = false;
+
+        if (response.IsSuccessStatusCode)
+        {
+            addEditDialogVisible = false;
+            snackBar.Add("Song successfully saved.", Severity.Success);            
+            await table.ReloadServerData();
+        }
+        else
+        {
+            snackBar.Add("Failed to save song.", Severity.Error);
+        }
+        
     }
 
     private async void Delete(SongModel s)
@@ -102,7 +158,7 @@
         parameters.Add(x => x.ButtonText, "Delete");
         parameters.Add(x => x.Color, Color.Error);
 
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall , Position = DialogPosition.TopCenter};
 
         var dialog = await DialogService.ShowAsync<MyMudDialog>($"Delete | " + string.Concat($"{s.Title} - {s.Artist}".Take(25)) + "...", parameters, options);
         var result = await dialog.Result;
@@ -112,6 +168,19 @@
             var response = await httpClient.DeleteAsync($"/api/Song/{s.Id}");
             snackBar.Add("Customer Deleted.", Severity.Warning);
             await table.ReloadServerData();
+        }
+    }
+
+    private async Task<string?> GetToken()
+    {
+        try
+        {
+            return await _localStorage.GetItemAsStringAsync("jwtToken");
+            //return await jsRuntime.InvokeAsync<string>("localStorage.getItem", "jwtToken");
+        }
+        catch
+        {
+            return StorageConstants.Local.JWTToken;
         }
     }
 
@@ -129,6 +198,10 @@
         public int? Id { get; set; } = null;
         public string Title { get; set; }
         public string Artist { get; set; }
+        public string Duration { get; set; }
+        public int PeakChartPosition { get; set; }
         public int ReleaseYear { get; set; }
+        public string RecordLabel { get; set; }
+        public string Genre { get; set; }
     }
 }
