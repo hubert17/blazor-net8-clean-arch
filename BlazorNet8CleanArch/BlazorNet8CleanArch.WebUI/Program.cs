@@ -4,9 +4,8 @@ using BlazorNet8CleanArch.Infrastructure;
 using MudBlazor.Services;
 using MudExtensions.Services;
 using Microsoft.AspNetCore.Identity;
-using BlazorNet8CleanArch.WebUI;
 using Microsoft.AspNetCore.Components.Authorization;
-using BlazorNet8CleanArch.WebUI.Client;
+using BlazorNet8CleanArch.Infrastructure.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,8 +16,6 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
-
-builder.Services.AddHttpClient();
 
 builder.Services.AddCascadingAuthenticationState();
 //builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();

@@ -140,7 +140,6 @@
     private async Task Save()
     {
         isSubmitting = true;
-        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await GetToken());
         var content = new StringContent(JsonSerializer.Serialize(song), System.Text.Encoding.UTF8, "application/json");
         HttpResponseMessage response;
         if (song.Id == null)
@@ -175,18 +174,6 @@
             var response = await httpClient.DeleteAsync($"https://api45gabs.azurewebsites.net/api/Song/{s.Id}");
             snackBar.Add("Customer Deleted.", Severity.Warning);
             await table.ReloadServerData();
-        }
-    }
-
-    private async Task<string?> GetToken()
-    {
-        try
-        {
-            return await _localStorage.GetItemAsStringAsync("jwtToken");
-        }
-        catch
-        {
-            return StorageConstants.Local.JWTToken;
         }
     }
 

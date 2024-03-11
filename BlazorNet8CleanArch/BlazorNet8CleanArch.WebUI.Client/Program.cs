@@ -4,17 +4,12 @@ using BlazorNet8CleanArch.Application;
 using BlazorNet8CleanArch.Infrastructure;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudExtensions.Services;
-using BlazorNet8CleanArch.WebUI.Client;
+using BlazorNet8CleanArch.Infrastructure.Authentication;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure();
-
-builder.Services.AddScoped(sp => new HttpClient //(new AddHeadersDelegatingHandler())
-{
-    BaseAddress = new Uri("https://api45gabs.azurewebsites.net/")
-});
 
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();

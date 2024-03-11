@@ -6,7 +6,7 @@ using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace BlazorNet8CleanArch.WebUI.Client
+namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
     public class AddHeadersDelegatingHandler : DelegatingHandler
     {
@@ -16,7 +16,9 @@ namespace BlazorNet8CleanArch.WebUI.Client
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            request.Headers.Add("Bearer", StorageConstants.Local.JWTToken);  // Add whatever headers you want here
+            var token = StorageConstants.Local.JWTToken;
+            if(!string.IsNullOrEmpty(token))
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             return base.SendAsync(request, cancellationToken);
         }
@@ -27,14 +29,14 @@ namespace BlazorNet8CleanArch.WebUI.Client
     public class PersistentAuthenticationStateProvider : AuthenticationStateProvider
     {
         readonly ClaimsPrincipal anonymous = new(new ClaimsIdentity());
-        readonly ILocalStorageService _localStorage;
+        readonly TokenAccessor _tokenAccessor;
 
         private static readonly Task<AuthenticationState> defaultUnauthenticatedTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
         private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
 
-        public PersistentAuthenticationStateProvider(PersistentComponentState state, ILocalStorageService localStorage)
+        public PersistentAuthenticationStateProvider(PersistentComponentState state, TokenAccessor tokenAccessor)
         {
-            _localStorage = localStorage;
+            _tokenAccessor = tokenAccessor;
 
             if (!state.TryTakeFromJson<UserInfo>(nameof(UserInfo), out var userInfo) || userInfo is null)
             {
@@ -60,7 +62,7 @@ namespace BlazorNet8CleanArch.WebUI.Client
         {
             try
             {
-                var jwtToken = await GetToken();
+                var jwtToken = await _tokenAccessor.GetToken();
                 if (string.IsNullOrEmpty(jwtToken))
                     return await Task.FromResult(new AuthenticationState(anonymous));
                 else
@@ -101,42 +103,19 @@ namespace BlazorNet8CleanArch.WebUI.Client
             }
 
         }
-
-        private async void SaveToken(string jwtToken)
-        {
-            StorageConstants.Local.JWTToken = jwtToken;
-            try
-            {
-                await _localStorage.SetItemAsStringAsync("jwtToken", jwtToken);
-            }
-            catch { }
-        }
-
-        private async Task<string?> GetToken()
-        {
-            try
-            {
-                return await _localStorage.GetItemAsStringAsync("jwtToken");
-            }
-            catch 
-            {
-                return StorageConstants.Local.JWTToken;
-            }
-        }
-
         public void UpdateAuthenticationState(string jwtToken = "")
         {
             var claimsPrincipal = new ClaimsPrincipal();
             if (!string.IsNullOrEmpty(jwtToken))
             {
-                SaveToken(jwtToken);
+                _tokenAccessor.SaveToken(jwtToken);
 
                 var getUserClaims = DecryptToken(jwtToken);
                 claimsPrincipal = SetClaimPrincipal(getUserClaims);
             }
             else
             {
-                SaveToken(null!);
+                _tokenAccessor.SaveToken(null!);
             }
 
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
@@ -160,8 +139,8 @@ namespace BlazorNet8CleanArch.WebUI.Client
 
         public async Task MarkUserAsLoggedOut()
         {
-            StorageConstants.Local.JWTToken = string.Empty; 
-            await _localStorage.RemoveItemAsync("jwtToken");
+            StorageConstants.Local.JWTToken = string.Empty;
+            await _tokenAccessor.RemoveToken();
 
             var authState = Task.FromResult(new AuthenticationState(anonymous));
 
