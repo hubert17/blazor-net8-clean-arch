@@ -8,7 +8,6 @@
 @inject ILocalStorageService _localStorage
 @inject ISnackbar snackBar
 @inject IDialogService DialogService
-@inject IJSRuntime jsRuntime
 
 <style>
     .action-button {
@@ -76,6 +75,18 @@
     </DialogActions>
 </MudDialog>
 
+<MudMessageBox @ref="delMessageBox">
+    <MessageContent>
+        Do you really want to delete this record? This process cannot be undone.
+    </MessageContent>
+    <YesButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error">Delete</MudButton>
+    </YesButton>
+    <CancelButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Error" OnClick="@(() => delMessageBox.Close() )" Class="mr-2">Cancel</MudButton>
+    </CancelButton>
+</MudMessageBox>
+
 @code {
     private List<SongModel> pagedData = new();
     private SongModel song = new();
@@ -87,6 +98,8 @@
     private DialogOptions addEditDialogOptions = new() { FullWidth = true, DisableBackdropClick = true, CloseButton = true };
 
     bool isSubmitting = false;
+
+    MudMessageBox delMessageBox { get; set; }
 
     /// <summary>
     /// Here we simulate getting the paged, filtered and ordered data from the server
@@ -147,24 +160,17 @@
         {
             snackBar.Add("Failed to save song.", Severity.Error);
         }
-        
+
     }
 
     private async void Delete(SongModel s)
     {
         if (s.Id == null) return;
 
-        var parameters = new DialogParameters<MyMudDialog>();
-        parameters.Add(x => x.ContentText, "Do you really want to delete this record? This process cannot be undone.");
-        parameters.Add(x => x.ButtonText, "Delete");
-        parameters.Add(x => x.Color, Color.Error);
+        delMessageBox.Title = $"Delete | " + string.Concat($"{s.Title} - {s.Artist}".Take(25)) + "...";
 
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall , Position = DialogPosition.TopCenter};
-
-        var dialog = await DialogService.ShowAsync<MyMudDialog>($"Delete | " + string.Concat($"{s.Title} - {s.Artist}".Take(25)) + "...", parameters, options);
-        var result = await dialog.Result;
-
-        if (!result.Canceled)
+        var result = await delMessageBox.Show();
+        if (result == true)
         {
             var response = await httpClient.DeleteAsync($"https://api45gabs.azurewebsites.net/api/Song/{s.Id}");
             snackBar.Add("Customer Deleted.", Severity.Warning);
@@ -177,7 +183,6 @@
         try
         {
             return await _localStorage.GetItemAsStringAsync("jwtToken");
-            //return await jsRuntime.InvokeAsync<string>("localStorage.getItem", "jwtToken");
         }
         catch
         {
@@ -185,7 +190,7 @@
         }
     }
 
-    public class SongDTO
+    private class SongDTO
     {
         public int pageNumber { get; set; }
         public int pageSize { get; set; }
@@ -194,7 +199,7 @@
         public List<SongModel> items { get; set; }
     }
 
-    public class SongModel
+    private class SongModel
     {
         public int? Id { get; set; } = null;
         public string Title { get; set; }
