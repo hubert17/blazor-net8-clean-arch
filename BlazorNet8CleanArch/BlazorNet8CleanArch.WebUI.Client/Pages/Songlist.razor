@@ -68,7 +68,7 @@
         <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true"></MudTextField>
         <MudTextField @bind-Value="song.Title" Label="Title" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
         <MudTextField @bind-Value="song.Artist" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
-        <MudTextField @bind-Value="song.ReleaseYear" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+        <MudTextField @bind-Value="song.ReleaseYear" Label="Release Year" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => addEditDialogVisible = false)">Cancel</MudButton>
@@ -128,11 +128,12 @@
     {
         isSubmitting = true;
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", await GetToken());
+        var content = new StringContent(JsonSerializer.Serialize(song), System.Text.Encoding.UTF8, "application/json");
         HttpResponseMessage response;
         if (song.Id == null)
-            response = await httpClient.PostAsJsonAsync("https://api45gabs.azurewebsites.net/api/Song", song);
+            response = await httpClient.PostAsync("https://api45gabs.azurewebsites.net/api/Song", content);
         else
-            response = await httpClient.PutAsJsonAsync("https://api45gabs.azurewebsites.net/api/Song", song);
+            response = await httpClient.PutAsync("https://api45gabs.azurewebsites.net/api/Song", content);
 
         isSubmitting = false;
 
