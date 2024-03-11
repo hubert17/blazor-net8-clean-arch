@@ -21,7 +21,7 @@
 
 <MudTable T="SongModel" ServerData="@(new Func<TableState, Task<TableData<SongModel>>>(GetServerData))" Elevation="25" Hover="true" @bind-song="song" @ref="table">
     <ToolBarContent>
-        <MudText Typo="Typo.h4" Class="mt-2">Song List @addEditDialogVisible.ToString()</MudText>
+        <MudText Typo="Typo.h4" Class="mt-2">Song List</MudText>
         <MudSpacer />
         <MudTextField T="string" ValueChanged="@(s=>OnSearch(s))" Placeholder="Search" Adornment="Adornment.Start"
                       AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
@@ -58,7 +58,7 @@
     </PagerContent>
 </MudTable>
 
-<MudDialog @bind-IsVisible="addEditDialogVisible" Options="addEditDialogOptions">
+<MudDialog @bind-IsVisible="addEditDialogVisible" Options="addEditDialogOptions" DefaultFocus="DefaultFocus.Element">
     <TitleContent>
         <MudText Typo="Typo.h6" Color="Color.Primary">
             <MudIcon Icon="@Icons.Material.Filled.Edit" /> @(song.Id == null ? "Add" : "Edit") Song
@@ -84,7 +84,7 @@
     private string searchString = null!;
 
     private bool addEditDialogVisible;
-    private DialogOptions addEditDialogOptions = new() { FullWidth = true };
+    private DialogOptions addEditDialogOptions = new() { FullWidth = true, DisableBackdropClick = true, CloseButton = true };
 
     bool isSubmitting = false;
 
@@ -166,7 +166,7 @@
 
         if (!result.Canceled)
         {
-            var response = await httpClient.DeleteAsync($"/api/Song/{s.Id}");
+            var response = await httpClient.DeleteAsync($"https://api45gabs.azurewebsites.net/api/Song/{s.Id}");
             snackBar.Add("Customer Deleted.", Severity.Warning);
             await table.ReloadServerData();
         }
