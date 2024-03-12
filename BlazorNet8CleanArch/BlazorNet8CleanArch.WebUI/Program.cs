@@ -30,6 +30,11 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddMudServices();
 builder.Services.AddMudExtensions();
 
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -44,6 +49,13 @@ else
     app.UseHsts();
 }
 
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
@@ -53,5 +65,8 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorNet8CleanArch.WebUI.Client._Imports).Assembly);
+
+app.MapControllers();
+app.MapGet("/api/hello", () => "Hello, World!");
 
 app.Run();

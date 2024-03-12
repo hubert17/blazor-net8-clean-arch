@@ -1,0 +1,5 @@
+﻿@BlazorNet8CleanArch.WebUI_HostAddress = https://localhost:7037
+
+GET {{BlazorNet8CleanArch.WebUI_HostAddress}}/api/hello
+
+###
