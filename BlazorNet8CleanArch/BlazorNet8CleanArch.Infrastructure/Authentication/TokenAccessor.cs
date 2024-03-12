@@ -29,18 +29,20 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
 
         public async Task<string?> GetToken()
         {
+            var token = StorageConstants.Local.JWTToken;
+            if (!String.IsNullOrEmpty(token))
+                return token;
+
             try
             {
                 return await _localStorage.GetItemAsStringAsync("jwtToken");
             }
-            catch
-            {
-                return StorageConstants.Local.JWTToken;
-            }
+            catch { throw; }            
         }
 
         public async Task RemoveToken()
         {
+            StorageConstants.Local.JWTToken = string.Empty;
             await _localStorage.RemoveItemAsync("jwtToken");
         }
     }

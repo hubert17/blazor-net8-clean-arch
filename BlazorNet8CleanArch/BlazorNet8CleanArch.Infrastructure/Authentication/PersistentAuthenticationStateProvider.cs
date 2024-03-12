@@ -138,8 +138,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
         }
 
         public async Task MarkUserAsLoggedOut()
-        {
-            StorageConstants.Local.JWTToken = string.Empty;
+        {            
             await _tokenAccessor.RemoveToken();
 
             var authState = Task.FromResult(new AuthenticationState(anonymous));

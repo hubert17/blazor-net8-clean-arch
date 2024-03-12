@@ -1,9 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
+@using BlazorNet8CleanArch.Infrastructure.Constants
 @using Blazored.LocalStorage
 
 @inject ILocalStorageService localStorage
-@inject HttpClient HttpClient
+@inject HttpClient httpClient
 
 <MyMudThemeProvider />
 <MyMudProviders />
@@ -33,14 +34,7 @@
 @code {
     protected override async Task OnInitializedAsync()
     {
-        try
-        {
-            await SetBackgroundWithBingWallpapers();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"SetBackgroundWithBingWallpapers(): {ex.Message}");
-        }
+        await SetBackgroundWithBingWallpapers();
     }
 
     #region UI:BingWallpapaer
@@ -50,31 +44,32 @@
 
     private async Task SetBackgroundWithBingWallpapers()
     {
-        var jsonPhotos = await localStorage.GetItemAsStringAsync("bingphotos");
-        if (!string.IsNullOrEmpty(jsonPhotos))
-        {
-            bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
+        string? jsonPhotos;
 
-            var bingImage = bingPhotos?.FirstOrDefault();
-            if (bingImage != null)
-                backgroundImageUrl = $"https://bing.com{bingImage.url}";
-        }
-
-        try
+        if (OperatingSystem.IsBrowser())
         {
-            var response = await HttpClient.GetAsync("https://api45gabs.azurewebsites.net/api/sample/bingphotos");
-            if (response.IsSuccessStatusCode)
+            jsonPhotos = await localStorage.GetItemAsStringAsync("bingphotos");
+            if (!string.IsNullOrEmpty(jsonPhotos))
             {
-                jsonPhotos = await response.Content.ReadAsStringAsync();
                 bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
-                await localStorage.SetItemAsStringAsync("bingphotos", jsonPhotos);
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error fetching Bing photos: {ex.Message}");
+                StorageConstants.Local.BingPhoto = bingPhotos.FirstOrDefault()!.url;                
+            }            
         }
 
+        var response = await httpClient.GetAsync("https://api45gabs.azurewebsites.net/api/sample/bingphotos");
+        if (response.IsSuccessStatusCode)
+        {
+            jsonPhotos = await response.Content.ReadAsStringAsync();
+            bingPhotos = JsonSerializer.Deserialize<List<BingPhoto>>(jsonPhotos)!;
+            StorageConstants.Local.BingPhoto = bingPhotos.FirstOrDefault()!.url;
+
+            if (OperatingSystem.IsBrowser())
+                await localStorage.SetItemAsStringAsync("bingphotos", jsonPhotos);
+        }
+        else
+            Console.WriteLine($"Error fetching Bing photos...");    
+            
+        backgroundImageUrl = $"https://bing.com{StorageConstants.Local.BingPhoto}";
     }
     #endregion
 }

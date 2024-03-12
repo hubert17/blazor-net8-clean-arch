@@ -15,6 +15,8 @@ namespace BlazorNet8CleanArch.Infrastructure.Constants
             public static string JWTToken = "";
             public static string RefreshToken = "refreshToken";
             public static string UserImageURL = "userImageURL";
+
+            public static string BingPhoto = "";
         }
 
         public static class Server
