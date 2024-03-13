@@ -19,30 +19,20 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
 
         public async void SaveToken(string jwtToken)
         {
-            StorageConstants.Local.JWTToken = jwtToken;
-            try
-            {
-                await _localStorage.SetItemAsStringAsync("jwtToken", jwtToken);
-            }
-            catch { }
+            await _localStorage.SetItemAsStringAsync("jwtToken", jwtToken);
         }
 
         public async Task<string?> GetToken()
         {
-            var token = StorageConstants.Local.JWTToken;
-            if (!String.IsNullOrEmpty(token))
-                return token;
+            //var token = StorageConstants.Local.JWTToken;
+            //if (!String.IsNullOrEmpty(token))
+            //    return token;
 
-            try
-            {
-                return await _localStorage.GetItemAsStringAsync("jwtToken");
-            }
-            catch { throw; }            
+            return await _localStorage.GetItemAsStringAsync("jwtToken");
         }
 
         public async Task RemoveToken()
         {
-            StorageConstants.Local.JWTToken = string.Empty;
             await _localStorage.RemoveItemAsync("jwtToken");
         }
     }

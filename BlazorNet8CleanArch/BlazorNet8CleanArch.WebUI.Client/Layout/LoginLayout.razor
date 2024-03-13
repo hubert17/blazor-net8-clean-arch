@@ -32,9 +32,13 @@
 </MudContainer>
 
 @code {
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await SetBackgroundWithBingWallpapers();
+        if (firstRender)
+        {
+            await SetBackgroundWithBingWallpapers();
+            StateHasChanged();
+        }
     }
 
     #region UI:BingWallpapaer

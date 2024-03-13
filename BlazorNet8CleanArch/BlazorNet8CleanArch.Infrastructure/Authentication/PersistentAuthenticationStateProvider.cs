@@ -10,17 +10,19 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
     public class AddHeadersDelegatingHandler : DelegatingHandler
     {
-        public AddHeadersDelegatingHandler() : base(new HttpClientHandler())
+        readonly TokenAccessor _tokenAccessor;
+        public AddHeadersDelegatingHandler(TokenAccessor tokenAccessor) : base(new HttpClientHandler())
         {
+            _tokenAccessor = tokenAccessor;
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = StorageConstants.Local.JWTToken;
+            var token = await _tokenAccessor.GetToken();
             if(!string.IsNullOrEmpty(token))
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
-            return base.SendAsync(request, cancellationToken);
+            return await base.SendAsync(request, cancellationToken);
         }
     }
 
