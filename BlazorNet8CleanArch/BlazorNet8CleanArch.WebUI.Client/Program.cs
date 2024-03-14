@@ -5,6 +5,7 @@ using BlazorNet8CleanArch.Infrastructure;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudExtensions.Services;
 using BlazorNet8CleanArch.Infrastructure.Authentication;
+using Blazored.LocalStorage;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 

@@ -11,7 +11,6 @@ namespace BlazorNet8CleanArch.Infrastructure
         {
             services.AddBlazoredLocalStorage();
 
-            services.AddScoped<TokenAccessor>();
             services.AddScoped<AddHeadersDelegatingHandler>();
             services.AddScoped(sp =>
             {

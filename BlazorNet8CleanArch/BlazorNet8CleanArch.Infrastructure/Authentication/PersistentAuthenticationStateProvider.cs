@@ -10,16 +10,16 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
     public class AddHeadersDelegatingHandler : DelegatingHandler
     {
-        readonly TokenAccessor _tokenAccessor;
-        public AddHeadersDelegatingHandler(TokenAccessor tokenAccessor) : base(new HttpClientHandler())
+        readonly ILocalStorageService _localStorage;
+        public AddHeadersDelegatingHandler(ILocalStorageService localStorageService) : base(new HttpClientHandler())
         {
-            _tokenAccessor = tokenAccessor;
+            _localStorage = localStorageService;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var token = await _tokenAccessor.GetToken();
-            if(!string.IsNullOrEmpty(token))
+            var token = await _localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
+            if (!string.IsNullOrEmpty(token))
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
 
             return await base.SendAsync(request, cancellationToken);
@@ -31,14 +31,15 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
     public class PersistentAuthenticationStateProvider : AuthenticationStateProvider
     {
         readonly ClaimsPrincipal anonymous = new(new ClaimsIdentity());
-        readonly TokenAccessor _tokenAccessor;
 
         private static readonly Task<AuthenticationState> defaultUnauthenticatedTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
         private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
 
-        public PersistentAuthenticationStateProvider(PersistentComponentState state, TokenAccessor tokenAccessor)
+        private readonly ILocalStorageService _localStorage;
+
+        public PersistentAuthenticationStateProvider(PersistentComponentState state, ILocalStorageService localStorageService)
         {
-            _tokenAccessor = tokenAccessor;
+            _localStorage = localStorageService;
 
             if (!state.TryTakeFromJson<UserInfo>(nameof(UserInfo), out var userInfo) || userInfo is null)
             {
@@ -64,7 +65,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
         {
             try
             {
-                var jwtToken = await _tokenAccessor.GetToken();
+                var jwtToken = await _localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
                 if (string.IsNullOrEmpty(jwtToken))
                     return await Task.FromResult(new AuthenticationState(anonymous));
                 else
@@ -110,14 +111,8 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             var claimsPrincipal = new ClaimsPrincipal();
             if (!string.IsNullOrEmpty(jwtToken))
             {
-                _tokenAccessor.SaveToken(jwtToken);
-
                 var getUserClaims = DecryptToken(jwtToken);
                 claimsPrincipal = SetClaimPrincipal(getUserClaims);
-            }
-            else
-            {
-                _tokenAccessor.SaveToken(null!);
             }
 
             NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(claimsPrincipal)));
@@ -140,8 +135,8 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
         }
 
         public async Task MarkUserAsLoggedOut()
-        {            
-            await _tokenAccessor.RemoveToken();
+        {
+            await _localStorage.RemoveItemAsync(StorageConstants.Local.JWTTokenStorageKeyName);
 
             var authState = Task.FromResult(new AuthenticationState(anonymous));
 

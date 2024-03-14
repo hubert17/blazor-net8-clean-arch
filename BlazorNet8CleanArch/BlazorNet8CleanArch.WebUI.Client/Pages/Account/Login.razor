@@ -35,7 +35,7 @@
 
 @code {
 
-    public record LoginResponse(string Username = null!, string Token = null!);
+    public record LoginResponse(string Username = null!, string Token = null!, string RefreshToken = null!);
     public record LoginDTO(string Username, string Password);
 
     string Username = "admin";
@@ -52,9 +52,11 @@
         var response = await HttpClient.PostAsJsonAsync($"https://api45gabs.azurewebsites.net/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
         if (response.IsSuccessStatusCode)
         {
-            var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            var tokenResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            await _localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, tokenResponse!.Token);
+            await _localStorage.SetItemAsStringAsync("refreshToken", tokenResponse.RefreshToken);
             var customAuthStateProvider = (PersistentAuthenticationStateProvider)AuthStateProvider;
-            customAuthStateProvider.UpdateAuthenticationState(result!.Token);
+            customAuthStateProvider.UpdateAuthenticationState(tokenResponse!.Token);
             NavManager.NavigateTo(ReturnUrl ?? "/home");
         }
         else

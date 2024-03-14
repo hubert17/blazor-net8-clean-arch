@@ -27,7 +27,7 @@
                 <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
             </ActivatorContent>
             <ChildContent>
-                <MudListItem Text="Account" Icon="@Icons.Material.Outlined.Person" Href="#" />
+                <MudListItem Text="@($"{Username} Account")" Icon="@Icons.Material.Outlined.Person" Href="#" />
                 <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" OnClick="@(() => Logout())" />
             </ChildContent>
         </MudMenu>
@@ -61,5 +61,22 @@
     {
         await ((PersistentAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
         NavManager.NavigateTo("/login");
+    }
+
+    [CascadingParameter]
+    private Task<AuthenticationState>? authenticationState { get; set; }
+    private string Username = "";
+    string roles = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (authenticationState is not null)
+        {
+            var state = await authenticationState;
+
+            Username = state?.User?.Identity?.Name ?? string.Empty;
+            var crole = state?.User?.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
+            roles = string.Join(',', crole!.Select(s => s.Value));
+        }
     }
 }
