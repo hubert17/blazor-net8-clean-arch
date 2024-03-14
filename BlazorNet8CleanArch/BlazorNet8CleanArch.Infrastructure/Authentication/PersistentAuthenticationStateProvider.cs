@@ -8,34 +8,14 @@ using System.Security.Claims;
 
 namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
-    public class AddHeadersDelegatingHandler : DelegatingHandler
-    {
-        readonly ILocalStorageService _localStorage;
-        public AddHeadersDelegatingHandler(ILocalStorageService localStorageService) : base(new HttpClientHandler())
-        {
-            _localStorage = localStorageService;
-        }
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var token = await _localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
-            if (!string.IsNullOrEmpty(token))
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-
-            return await base.SendAsync(request, cancellationToken);
-        }
-    }
-
-    public record UserInfo(string Name = null!, string[] Roles = null!);
-
     public class PersistentAuthenticationStateProvider : AuthenticationStateProvider
     {
         readonly ClaimsPrincipal anonymous = new(new ClaimsIdentity());
 
-        private static readonly Task<AuthenticationState> defaultUnauthenticatedTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
-        private readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
+        static readonly Task<AuthenticationState> defaultUnauthenticatedTask = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
+        readonly Task<AuthenticationState> authenticationStateTask = defaultUnauthenticatedTask;
 
-        private readonly ILocalStorageService _localStorage;
+        readonly ILocalStorageService _localStorage;
 
         public PersistentAuthenticationStateProvider(PersistentComponentState state, ILocalStorageService localStorageService)
         {
@@ -137,10 +117,13 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
         public async Task MarkUserAsLoggedOut()
         {
             await _localStorage.RemoveItemAsync(StorageConstants.Local.JWTTokenStorageKeyName);
+            await _localStorage.RemoveItemAsync("refreshToken");
 
             var authState = Task.FromResult(new AuthenticationState(anonymous));
 
             NotifyAuthenticationStateChanged(authState);
         }
     }
+
+    public record UserInfo(string Name = null!, string[] Roles = null!); 
 }

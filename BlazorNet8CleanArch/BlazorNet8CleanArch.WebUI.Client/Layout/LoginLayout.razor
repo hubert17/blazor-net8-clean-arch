@@ -1,41 +1,75 @@
 ﻿@inherits LayoutComponentBase
 
+@using BlazorNet8CleanArch.Infrastructure.Authentication
 @using BlazorNet8CleanArch.Infrastructure.Constants
 @using Blazored.LocalStorage
 
+@inject HttpClient HttpClient
+@inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService localStorage
-@inject HttpClient httpClient
 
 <MyMudThemeProvider />
 <MyMudProviders />
 
-<style>
-    body {
-        background-image: url("@backgroundImageUrl");
-        background-size: cover;
-        background-color: #263238;
-    }
-</style>
+@if (!_loading)
+{
+    <style>
+        body {
+            background-image: url("@backgroundImageUrl");
+            background-size: cover;
+            background-color: #263238;
+        }
+    </style>
+}
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="height: 100vh;">
-    <div class="d-flex flex-column mud-width-full">
-        <MudAppBar Color="Color.Primary" Fixed="false">
-            <MudText Typo="Typo.h5" Class="ml-n2">Gablazor</MudText>
-            <MudSpacer />
-            <MudIconButton Icon="@Icons.Material.Outlined.MoreVert" Color="Color.Inherit" Class="mr-n4" />
-        </MudAppBar>
-        <MudPaper Elevation="25" Class="pa-8" Width="100%" MaxWidth="600px">
-            <MudIcon Icon="@Icons.Custom.Brands.MudBlazor" Size="Size.Large" Style="width:100px; height:100px;" />
-            @Body
-        </MudPaper>       
-    </div>
+    <MudLoading @bind-Loading="_loading" Overlap="@false" LoaderType="MudExtensions.Enums.LoaderType.Circular">
+        <div class="d-flex flex-column mud-width-full">
+            <MudAppBar Color="Color.Primary" Fixed="false">
+                <MudText Typo="Typo.h5" Class="ml-n2">Gablazor</MudText>
+                <MudSpacer />
+                <MudIconButton Icon="@Icons.Material.Outlined.MoreVert" Color="Color.Inherit" Class="mr-n4" />
+            </MudAppBar>
+            <MudPaper Elevation="25" Class="pa-8" Width="100%" MaxWidth="600px">
+                <MudIcon Icon="@Icons.Custom.Brands.MudBlazor" Size="Size.Large" Style="width:100px; height:100px;" />
+                @Body
+            </MudPaper>
+        </div>
+    </MudLoading>
 </MudContainer>
 
 @code {
+    bool _loading = true;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "ReturnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    public record JWTTokenResponse(string Username = null!, string Token = null!, string RefreshToken = null!);
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            var refreshToken = await localStorage.GetItemAsStringAsync("refreshToken");
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                var jwtToken = await localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
+                var jsonPayload = JsonSerializer.Serialize(new { token = jwtToken, refreshToken });
+                var requestContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
+                var refreshTokenresponse = await HttpClient.PostAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKENREFRESH?token={jwtToken}&refreshToken={refreshToken}", requestContent);
+                if (refreshTokenresponse.IsSuccessStatusCode)
+                {
+                    var regeneratedTokenResponse = await refreshTokenresponse.Content.ReadFromJsonAsync<JWTTokenResponse>();
+                    await localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, regeneratedTokenResponse!.Token);
+                    await localStorage.SetItemAsStringAsync("refreshToken", regeneratedTokenResponse.RefreshToken);
+                    (AuthStateProvider as PersistentAuthenticationStateProvider)!.UpdateAuthenticationState(regeneratedTokenResponse.Token);
+                    NavManager.NavigateTo(ReturnUrl ?? "/");
+                }
+            }
+
+            _loading = false;
             await SetBackgroundWithBingWallpapers();
             StateHasChanged();
         }
@@ -60,7 +94,7 @@
             }            
         }
 
-        var response = await httpClient.GetAsync("https://api45gabs.azurewebsites.net/api/sample/bingphotos");
+        var response = await HttpClient.GetAsync("/api/sample/bingphotos");
         if (response.IsSuccessStatusCode)
         {
             jsonPhotos = await response.Content.ReadAsStringAsync();

@@ -12,9 +12,10 @@ namespace BlazorNet8CleanArch.Infrastructure.Constants
         {
             public static string Preference = "clientPreference";
 
-            public static string JWTToken = "";
             public static string JWTTokenStorageKeyName = "jwtToken";
-            public static string RefreshToken = "refreshToken";
+
+            public static string HttpClientAuthBaseAddress = "https://api45gabs.azurewebsites.net/";
+
             public static string UserImageURL = "userImageURL";
 
             public static string BingPhoto = "";

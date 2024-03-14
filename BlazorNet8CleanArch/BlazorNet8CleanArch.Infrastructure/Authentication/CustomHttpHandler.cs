@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -16,20 +17,19 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
 {
     public class CustomHttpHandler : DelegatingHandler
     {
-        private readonly ILocalStorageService _localStorage;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly AuthenticationStateProvider _authStateProvider;
-        public CustomHttpHandler(ILocalStorageService localStorageService,  IHttpClientFactory httpClientFactory, AuthenticationStateProvider authenticationStateProvider)
+        readonly ILocalStorageService _localStorage;
+        readonly AuthenticationStateProvider _authStateProvider;
+
+        public CustomHttpHandler(ILocalStorageService localStorageService, AuthenticationStateProvider authenticationStateProvider) : base(new HttpClientHandler())
         {
             _localStorage = localStorageService;
-            _httpClientFactory = httpClientFactory;
             _authStateProvider = authenticationStateProvider;
         }
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             if (request.RequestUri!.AbsolutePath.ToLower().Contains("login") ||
                 request.RequestUri.AbsolutePath.ToLower().Contains("register") ||
-                request.RequestUri.AbsolutePath.ToLower().Contains("TOKENREFRESH"))
+                request.RequestUri.AbsolutePath.ToLower().Contains("tokenrefresh"))
             {
                 return await base.SendAsync(request, cancellationToken);
             }
@@ -38,8 +38,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
 
             if (!string.IsNullOrEmpty(jwtToken))
             {
-                //request.Headers.Add("Authorization", $"bearer {jwtToken}");
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", jwtToken);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
             }
 
             var originalResponse = await base.SendAsync(request, cancellationToken);
@@ -47,6 +46,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             {
                 return await InvokeRefreshCall(request, originalResponse, jwtToken!, cancellationToken);
             }
+
             return originalResponse;
         }
 
@@ -55,27 +55,26 @@ namespace BlazorNet8CleanArch.Infrastructure.Authentication
             string expiredJwtToken,
             CancellationToken cancellationToken)
         {
-            var jwtToken = await _localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
             var refreshToken = await _localStorage.GetItemAsStringAsync("refreshToken");
-            
-            var httpClient = _httpClientFactory.CreateClient("api45gabs");
-            var jsonPayload = JsonSerializer.Serialize(new { jwtToken, refreshToken });
+            var jsonPayload = JsonSerializer.Serialize(new { token = expiredJwtToken, refreshToken });
             var requestContent = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
-            var refreshTokenresponse = await httpClient.PostAsync($"https://api45gabs.azurewebsites.net/TOKENREFRESH?token={jwtToken}&refreshToken={refreshToken}", requestContent);
-
-            if (refreshTokenresponse.StatusCode == HttpStatusCode.OK)
+            using (var refreshTokenClient = new HttpClient())
             {
-                var regeneratedTokenResponse = await refreshTokenresponse.Content.ReadFromJsonAsync<JWTTokenResponse>();
-                await _localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, regeneratedTokenResponse!.Token);
-                await _localStorage.SetItemAsStringAsync("refreshToken", regeneratedTokenResponse.RefreshToken);
-                (_authStateProvider as PersistentAuthenticationStateProvider)!.UpdateAuthenticationState(regeneratedTokenResponse.Token);
+                var refreshTokenResponse = await refreshTokenClient.PostAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKENREFRESH?token={expiredJwtToken}&refreshToken={refreshToken}", requestContent);
+                if (refreshTokenResponse.StatusCode == HttpStatusCode.OK)
+                {
+                    var regeneratedTokenResponse = await refreshTokenResponse.Content.ReadFromJsonAsync<JWTTokenResponse>();
+                    await _localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, regeneratedTokenResponse!.Token);
+                    await _localStorage.SetItemAsStringAsync("refreshToken", regeneratedTokenResponse.RefreshToken);
+                    (_authStateProvider as PersistentAuthenticationStateProvider)!.UpdateAuthenticationState(regeneratedTokenResponse.Token);
 
-                originalRequest.Headers.Remove("Authorization");
-                //originalRequest.Headers.Add("Authorization", $"bearer {regeneratedTokenResponse.Token}");
-                originalRequest.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", regeneratedTokenResponse!.Token);
+                    originalRequest.Headers.Remove("Authorization");
+                    originalRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", regeneratedTokenResponse!.Token);
 
-                return await base.SendAsync(originalRequest, cancellationToken);
+                    return await base.SendAsync(originalRequest, cancellationToken);
+                }
             }
+           
             return originalResponse;
         }
 

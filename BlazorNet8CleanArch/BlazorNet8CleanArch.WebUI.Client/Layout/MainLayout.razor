@@ -1,9 +1,12 @@
 ﻿@inherits LayoutComponentBase
 
 @using BlazorNet8CleanArch.Infrastructure.Authentication
+@using BlazorNet8CleanArch.Infrastructure.Constants
 @using Microsoft.AspNetCore.Components.Authorization
 @using Blazored.LocalStorage
+@using System.Text
 
+@inject HttpClient HttpClient
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService localStorage
 @inject NavigationManager NavManager
@@ -57,10 +60,12 @@
         _drawerOpen = !_drawerOpen;
     }
 
+
+
     async void Logout()
     {
         await ((PersistentAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
-        NavManager.NavigateTo("/login");
+        NavManager.NavigateTo("/account/login");
     }
 
     [CascadingParameter]

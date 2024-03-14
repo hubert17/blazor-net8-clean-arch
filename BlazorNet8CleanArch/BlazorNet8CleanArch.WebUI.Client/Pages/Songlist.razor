@@ -106,7 +106,7 @@
     /// </summary>
     private async Task<TableData<SongModel>> GetServerData(TableState state)
     {       
-        var response = await httpClient.GetFromJsonAsync<SongDTO>($"https://api45gabs.azurewebsites.net/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
+        var response = await httpClient.GetFromJsonAsync<SongDTO>($"/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
 
         //songs = response.items;
 
@@ -143,9 +143,9 @@
         var content = new StringContent(JsonSerializer.Serialize(song), System.Text.Encoding.UTF8, "application/json");
         HttpResponseMessage response;
         if (song.Id == null)
-            response = await httpClient.PostAsync("https://api45gabs.azurewebsites.net/api/Song", content);
+            response = await httpClient.PostAsync("/api/Song", content);
         else
-            response = await httpClient.PutAsync("https://api45gabs.azurewebsites.net/api/Song", content);
+            response = await httpClient.PutAsync("/api/Song", content);
 
         isSubmitting = false;
 
@@ -171,7 +171,7 @@
         var result = await delMessageBox.Show();
         if (result == true)
         {
-            var response = await httpClient.DeleteAsync($"https://api45gabs.azurewebsites.net/api/Song/{s.Id}");
+            var response = await httpClient.DeleteAsync($"/api/Song/{s.Id}");
             snackBar.Add("Customer Deleted.", Severity.Warning);
             await table.ReloadServerData();
         }

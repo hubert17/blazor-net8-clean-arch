@@ -11,13 +11,13 @@ namespace BlazorNet8CleanArch.Infrastructure
         {
             services.AddBlazoredLocalStorage();
 
-            services.AddScoped<AddHeadersDelegatingHandler>();
+            services.AddScoped<CustomHttpHandler>();
             services.AddScoped(sp =>
             {
-                var handler = sp.GetRequiredService<AddHeadersDelegatingHandler>();
+                var handler = sp.GetRequiredService<CustomHttpHandler>();
                 return new HttpClient(handler)
                 {
-                    BaseAddress = new Uri("https://api45gabs.azurewebsites.net/")
+                    BaseAddress = new Uri("https://api45gabs.azurewebsites.net")
                 };
             });
 

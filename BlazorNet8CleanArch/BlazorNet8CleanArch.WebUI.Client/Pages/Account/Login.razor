@@ -1,6 +1,4 @@
-﻿@page "/"
-@page "/login"
-@page "/account/login"
+﻿@page "/account/login"
 @layout Layout.LoginLayout
 
 @using BlazorNet8CleanArch.Infrastructure.Authentication
@@ -14,7 +12,7 @@
 
 @inject AuthenticationStateProvider AuthStateProvider
 
-@inject ILocalStorageService _localStorage
+@inject ILocalStorageService localStorage
 
 <PageTitle>Gablazor App - Login</PageTitle>
 
@@ -34,7 +32,6 @@
 <MudLoadingButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="LoginClicked">Sign In</MudLoadingButton>
 
 @code {
-
     public record LoginResponse(string Username = null!, string Token = null!, string RefreshToken = null!);
     public record LoginDTO(string Username, string Password);
 
@@ -49,15 +46,15 @@
     async Task LoginClicked()
     {
         isSubmitting = true;
-        var response = await HttpClient.PostAsJsonAsync($"https://api45gabs.azurewebsites.net/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
+        var response = await HttpClient.PostAsJsonAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
         if (response.IsSuccessStatusCode)
         {
             var tokenResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
-            await _localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, tokenResponse!.Token);
-            await _localStorage.SetItemAsStringAsync("refreshToken", tokenResponse.RefreshToken);
+            await localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, tokenResponse!.Token);
+            await localStorage.SetItemAsStringAsync("refreshToken", tokenResponse.RefreshToken);
             var customAuthStateProvider = (PersistentAuthenticationStateProvider)AuthStateProvider;
             customAuthStateProvider.UpdateAuthenticationState(tokenResponse!.Token);
-            NavManager.NavigateTo(ReturnUrl ?? "/home");
+            NavManager.NavigateTo(ReturnUrl ?? "/");
         }
         else
         {
