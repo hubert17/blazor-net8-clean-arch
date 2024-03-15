@@ -1,7 +1,6 @@
 ﻿@page "/songlist"
 @attribute [Authorize]
 
-@using BlazorNet8CleanArch.Infrastructure.Constants
 @using System.ComponentModel.DataAnnotations
 
 @inject HttpClient HttpClient
@@ -73,7 +72,10 @@
             <MudTextField @bind-Value="song.ReleaseYear" Label="Release Year" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
             <div class="mud-dialog-actions mt-2 mr-n2">
                 <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => addEditDialogVisible = false)">Cancel</MudButton>
-                <MudLoadingButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" ButtonType="ButtonType.Submit" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="() => Save()">Save</MudLoadingButton>
+                <MudLoadingButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" 
+                    ButtonType="ButtonType.Submit" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" 
+                    OnClick="() => Save()" Disabled="@(!context.IsModified() || !context.Validate())">Save
+                </MudLoadingButton>
             </div>           
         </EditForm>
     </DialogContent>
@@ -137,6 +139,7 @@
         if (s is not null)
         {
             song = pagedData.Single(x => x.Id == s.Id);
+            song = JsonSerializer.Deserialize<SongModel>(JsonSerializer.Serialize(song))!;
             addEditDialogVisible = true;            
         }        
     }
@@ -176,8 +179,16 @@
         if (result == true)
         {
             var response = await HttpClient.DeleteAsync($"/api/Song/{s.Id}");
-            SnackBar.Add("Song Deleted.", Severity.Warning);
-            await table.ReloadServerData();
+            if (response.IsSuccessStatusCode)
+            {
+                SnackBar.Add("Song deleted.", Severity.Error);
+                await table.ReloadServerData();
+            }
+            else
+            {
+                SnackBar.Add("Failed to delete song.", Severity.Warning);
+            }
+
         }
     }
 
@@ -193,7 +204,7 @@
     private class SongModel
     {
         public int? Id { get; set; } = null;
-        [Required]
+        [Required(ErrorMessage = "Title is required")]
         [MinLength(3, ErrorMessage = "At least 3 character.")]
         public string Title { get; set; }
         public string Artist { get; set; }
