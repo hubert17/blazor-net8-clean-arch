@@ -32,8 +32,8 @@
 <MudLoadingButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="LoginClicked">Sign In</MudLoadingButton>
 
 @code {
-    public record LoginResponse(string Username = null!, string Token = null!, string RefreshToken = null!);
     public record LoginDTO(string Username, string Password);
+    public record TokenResponse(string Username = null!, string Token = null!, string RefreshToken = null!);    
 
     string Username = "admin";
     string Password = "admin123";
@@ -49,11 +49,10 @@
         var response = await HttpClient.PostAsJsonAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKEN?username={Username}&password={Password}", new LoginDTO(Username, Password));
         if (response.IsSuccessStatusCode)
         {
-            var tokenResponse = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            var tokenResponse = await response.Content.ReadFromJsonAsync<TokenResponse>();
             await localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, tokenResponse!.Token);
             await localStorage.SetItemAsStringAsync("refreshToken", tokenResponse.RefreshToken);
-            var customAuthStateProvider = (PersistentAuthenticationStateProvider)AuthStateProvider;
-            customAuthStateProvider.UpdateAuthenticationState(tokenResponse!.Token);
+            (AuthStateProvider as PersistentAuthenticationStateProvider)!.UpdateAuthenticationState(tokenResponse!.Token);
             NavManager.NavigateTo(ReturnUrl ?? "/");
         }
         else

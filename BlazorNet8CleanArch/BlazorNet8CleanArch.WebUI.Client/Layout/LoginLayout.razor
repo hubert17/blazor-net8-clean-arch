@@ -58,10 +58,10 @@
                 var jwtToken = await localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
                 var jsonPayload = JsonSerializer.Serialize(new { token = jwtToken, refreshToken });
                 var requestContent = new StringContent(jsonPayload, System.Text.Encoding.UTF8, "application/json");
-                var refreshTokenresponse = await HttpClient.PostAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKENREFRESH?token={jwtToken}&refreshToken={refreshToken}", requestContent);
-                if (refreshTokenresponse.IsSuccessStatusCode)
+                var reponse = await HttpClient.PostAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKENREFRESH?token={jwtToken}&refreshToken={refreshToken}", requestContent);
+                if (reponse.IsSuccessStatusCode)
                 {
-                    var regeneratedTokenResponse = await refreshTokenresponse.Content.ReadFromJsonAsync<JWTTokenResponse>();
+                    var regeneratedTokenResponse = await reponse.Content.ReadFromJsonAsync<JWTTokenResponse>();
                     await localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, regeneratedTokenResponse!.Token);
                     await localStorage.SetItemAsStringAsync("refreshToken", regeneratedTokenResponse.RefreshToken);
                     (AuthStateProvider as PersistentAuthenticationStateProvider)!.UpdateAuthenticationState(regeneratedTokenResponse.Token);

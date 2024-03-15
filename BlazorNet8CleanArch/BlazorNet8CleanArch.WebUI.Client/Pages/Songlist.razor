@@ -2,11 +2,11 @@
 @attribute [Authorize]
 
 @using BlazorNet8CleanArch.Infrastructure.Constants
+@using System.ComponentModel.DataAnnotations
 
-@inject HttpClient httpClient
-
-@inject ILocalStorageService _localStorage
-@inject ISnackbar snackBar
+@inject HttpClient HttpClient
+@inject ILocalStorageService localStorage
+@inject ISnackbar SnackBar
 @inject IDialogService DialogService
 
 <style>
@@ -57,22 +57,26 @@
     </PagerContent>
 </MudTable>
 
-<MudDialog @bind-IsVisible="addEditDialogVisible" Options="addEditDialogOptions" DefaultFocus="DefaultFocus.Element">
+
+<MudDialog @bind-IsVisible="addEditDialogVisible" Options="addEditDialogOptions">
     <TitleContent>
         <MudText Typo="Typo.h6" Color="Color.Primary">
             <MudIcon Icon="@Icons.Material.Filled.Edit" /> @(song.Id == null ? "Add" : "Edit") Song
         </MudText>
     </TitleContent>
-    <DialogContent>
-        <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true"></MudTextField>
-        <MudTextField @bind-Value="song.Title" Label="Title" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
-        <MudTextField @bind-Value="song.Artist" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
-        <MudTextField @bind-Value="song.ReleaseYear" Label="Release Year" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+    <DialogContent>      
+        <EditForm Model="song" OnValidSubmit="() => Save()">
+            <DataAnnotationsValidator />
+            <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true" ></MudTextField>
+            <MudTextField @bind-Value="song.Title" Label="Title" Variant="Variant.Text" Margin="Margin.Normal" autoFocus For="@(() => song.Title)"></MudTextField>
+            <MudTextField @bind-Value="song.Artist" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+            <MudTextField @bind-Value="song.ReleaseYear" Label="Release Year" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+            <div class="mud-dialog-actions mt-2 mr-n2">
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => addEditDialogVisible = false)">Cancel</MudButton>
+                <MudLoadingButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" ButtonType="ButtonType.Submit" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="() => Save()">Save</MudLoadingButton>
+            </div>           
+        </EditForm>
     </DialogContent>
-    <DialogActions>
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => addEditDialogVisible = false)">Cancel</MudButton>
-        <MudLoadingButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="() => Save()">Save</MudLoadingButton>
-    </DialogActions>
 </MudDialog>
 
 <MudMessageBox @ref="delMessageBox">
@@ -95,7 +99,7 @@
     private string searchString = null!;
 
     private bool addEditDialogVisible;
-    private DialogOptions addEditDialogOptions = new() { FullWidth = true, DisableBackdropClick = true, CloseButton = true };
+    private DialogOptions addEditDialogOptions = new() { FullWidth = true, DisableBackdropClick = true, CloseButton = true, CloseOnEscapeKey = true };
 
     bool isSubmitting = false;
 
@@ -106,7 +110,7 @@
     /// </summary>
     private async Task<TableData<SongModel>> GetServerData(TableState state)
     {       
-        var response = await httpClient.GetFromJsonAsync<SongDTO>($"/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
+        var response = await HttpClient.GetFromJsonAsync<SongDTO>($"/api/Song?page={state.Page + 1}&pageSize={state.PageSize}&search={searchString}");
 
         //songs = response.items;
 
@@ -143,21 +147,21 @@
         var content = new StringContent(JsonSerializer.Serialize(song), System.Text.Encoding.UTF8, "application/json");
         HttpResponseMessage response;
         if (song.Id == null)
-            response = await httpClient.PostAsync("/api/Song", content);
+            response = await HttpClient.PostAsync("/api/Song", content);
         else
-            response = await httpClient.PutAsync("/api/Song", content);
+            response = await HttpClient.PutAsync("/api/Song", content);
 
         isSubmitting = false;
 
         if (response.IsSuccessStatusCode)
         {
             addEditDialogVisible = false;
-            snackBar.Add("Song successfully saved.", Severity.Success);            
+            SnackBar.Add("Song successfully saved.", Severity.Success);            
             await table.ReloadServerData();
         }
         else
         {
-            snackBar.Add("Failed to save song.", Severity.Error);
+            SnackBar.Add("Failed to save song.", Severity.Error);
         }
 
     }
@@ -171,8 +175,8 @@
         var result = await delMessageBox.Show();
         if (result == true)
         {
-            var response = await httpClient.DeleteAsync($"/api/Song/{s.Id}");
-            snackBar.Add("Customer Deleted.", Severity.Warning);
+            var response = await HttpClient.DeleteAsync($"/api/Song/{s.Id}");
+            SnackBar.Add("Song Deleted.", Severity.Warning);
             await table.ReloadServerData();
         }
     }
@@ -189,6 +193,8 @@
     private class SongModel
     {
         public int? Id { get; set; } = null;
+        [Required]
+        [MinLength(3, ErrorMessage = "At least 3 character.")]
         public string Title { get; set; }
         public string Artist { get; set; }
         public string Duration { get; set; }

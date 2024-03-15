@@ -1,4 +1,3 @@
-# blazor-net8-clean-arch
 # Blazor InteractiveAuto Clean Architecture in .NET 8
 
 A clean architecture template for Blazor InteractiveAuto applications using .NET 8.
