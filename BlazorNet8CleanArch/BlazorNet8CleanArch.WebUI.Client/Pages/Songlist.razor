@@ -64,7 +64,7 @@
         </MudText>
     </TitleContent>
     <DialogContent>      
-        <EditForm Model="song" OnValidSubmit="() => Save()">
+        <EditForm Model="song">
             <DataAnnotationsValidator />
             <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true" ></MudTextField>
             <MudTextField @bind-Value="song.Title" Label="Title" Variant="Variant.Text" Margin="Margin.Normal" autoFocus For="@(() => song.Title)"></MudTextField>
