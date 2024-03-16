@@ -23,6 +23,7 @@
     </style>
 }
 
+
 <MudContainer MaxWidth="MaxWidth.Small" Class="d-flex align-center" Style="height: 100vh;">
     <MudLoading @bind-Loading="_loading" Overlap="@false" LoaderType="MudExtensions.Enums.LoaderType.Circular">
         <div class="d-flex flex-column mud-width-full">
@@ -72,7 +73,10 @@
 
             _loading = false;
             _isDarkMode = await localStorage.GetItemAsync<bool>("isDarkMode");
-            await SetBackgroundWithBingWallpapers();
+            if (!_isDarkMode)
+            {
+                await SetBackgroundWithBingWallpapers();
+            }            
             StateHasChanged();
         }
     }
