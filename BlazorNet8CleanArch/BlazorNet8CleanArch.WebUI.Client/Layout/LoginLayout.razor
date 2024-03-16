@@ -9,10 +9,10 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject ILocalStorageService localStorage
 
-<MyMudThemeProvider />
+<MyMudThemeProvider IsDarkMode="_isDarkMode" />
 <MyMudProviders />
 
-@if (!_loading)
+@if (!_loading && !_isDarkMode)
 {
     <style>
         body {
@@ -41,6 +41,7 @@
 
 @code {
     bool _loading = true;
+    bool _isDarkMode = false;
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "ReturnUrl")]
@@ -70,6 +71,7 @@
             }
 
             _loading = false;
+            _isDarkMode = await localStorage.GetItemAsync<bool>("isDarkMode");
             await SetBackgroundWithBingWallpapers();
             StateHasChanged();
         }

@@ -11,7 +11,7 @@
 @inject ILocalStorageService localStorage
 @inject NavigationManager NavManager
 
-<MyMudThemeProvider />
+<MyMudThemeProvider IsDarkMode="_isDarkMode" />
 <MyMudProviders />
 
 <MudLayout>
@@ -24,13 +24,18 @@
         </MudHidden>
         <MudText Typo="Typo.h6" Class="ml-3">Gablazor App</MudText>
 
-        <MudSpacer />        
-        <MudMenu EndIcon="@Icons.Filled.KeyboardArrowDown" Label="Support" Color="Color.Inherit" Dense="true" AnchorOrigin="Origin.BottomRight">
-            <MudText Typo="Typo.body2" Class="px-4 py-2"><b>Community</b></MudText>
-            <MudText Typo="Typo.body2" Class="px-4 py-2"><b>Resources</b></MudText>
-            <MudMenuItem Link="https://mudblazor.com/docs/overview" Target="_blank">MudBlazor Documentation</MudMenuItem>
-            <MudMenuItem Link="https://mudblazor.com/getting-started/installation" Target="_blank">Quick-Start Guide</MudMenuItem>
-        </MudMenu>
+        <MudSpacer /> 
+        <MudHidden Breakpoint="Breakpoint.SmAndUp" Invert="true">
+            <MudMenu EndIcon="@Icons.Material.Filled.KeyboardArrowDown" Label="Support" Color="Color.Inherit" Dense="true" AnchorOrigin="Origin.BottomRight">
+                <MudText Typo="Typo.body2" Class="px-4 py-2"><b>Community</b></MudText>
+                <MudText Typo="Typo.body2" Class="px-4 py-2"><b>Resources</b></MudText>
+                <MudMenuItem Link="https://mudblazor.com/docs/overview" Target="_blank">MudBlazor Documentation</MudMenuItem>
+                <MudMenuItem Link="https://mudblazor.com/getting-started/installation" Target="_blank">Quick-Start Guide</MudMenuItem>
+            </MudMenu>
+        </MudHidden>
+        <MudTooltip Text="Toggle Dark Mode" Duration="1000">
+            <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.Brightness3 : Icons.Material.Filled.WbSunny)" Color="Color.Inherit" OnClick="@((e) => ToggleDarkMode())" />
+        </MudTooltip>
         <MudTooltip Text="Github" Duration="1000">
             <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/hubert17/blazor-net8-clean-arch" Target="_blank" />
         </MudTooltip>
@@ -50,7 +55,7 @@
         
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Responsive" Elevation="6">
-        <NavMenu />
+        <NavMenu IsDarkMode="_isDarkMode" />
     </MudDrawer>
     <MudMainContent>
         <MudContainer Class="mt-6">
@@ -67,13 +72,18 @@
 
 @code {
     bool _drawerOpen = true;
+    bool _isDarkMode = false;
 
     void DrawerToggle()
     {
         _drawerOpen = !_drawerOpen;
     }
 
-
+    async void ToggleDarkMode()
+    {
+        _isDarkMode = !_isDarkMode;
+        await localStorage.SetItemAsync<bool>("isDarkMode", _isDarkMode);
+    }
 
     async void Logout()
     {
@@ -96,5 +106,7 @@
             var crole = state?.User?.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).ToList();
             roles = string.Join(',', crole!.Select(s => s.Value));
         }
+
+        _isDarkMode = await localStorage.GetItemAsync<bool>("isDarkMode");
     }
 }

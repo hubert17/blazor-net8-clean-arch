@@ -1,12 +1,15 @@
-﻿<style>
-    .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) {
-        background-color: #90A4AE;
-    }
+﻿@if(!IsDarkMode)
+{
+    <style>
+        .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) {
+            background-color: #90A4AE;
+        }
 
-    .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) .mud-nav-link-text {
-        color: #fff;
-    }
-</style>
+            .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) .mud-nav-link-text {
+                color: #fff;
+            }
+    </style>
+}
 
 <MudList>
     <MudListItem>
@@ -31,4 +34,8 @@
         </MudNavMenu>
     </MudListItem>
 </MudList>
+
+@code {
+    [Parameter] public bool IsDarkMode { get; set; }
+}
 
