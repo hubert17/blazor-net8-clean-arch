@@ -2,6 +2,9 @@
 
 A clean architecture template for Blazor InteractiveAuto applications using .NET 8.
 
+## Demo:
+- https://gablazor.somee.com
+
 ## Prerequisites
 
 - .NET 8
