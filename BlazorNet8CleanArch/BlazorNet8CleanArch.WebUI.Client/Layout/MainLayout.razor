@@ -31,7 +31,9 @@
             <MudMenuItem Link="https://mudblazor.com/docs/overview" Target="_blank">MudBlazor Documentation</MudMenuItem>
             <MudMenuItem Link="https://mudblazor.com/getting-started/installation" Target="_blank">Quick-Start Guide</MudMenuItem>
         </MudMenu>
-        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/hubert17/blazor-net8-clean-arch" Target="_blank" />
+        <MudTooltip Text="Github" Duration="1000">
+            <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/hubert17/blazor-net8-clean-arch" Target="_blank" />
+        </MudTooltip>
         <MudMenu AnchorOrigin="Origin.TopLeft" Dense="true" Class="mt-1 ml-4">
             <ActivatorContent>
                 <MudAvatar Size="Size.Medium"> 
