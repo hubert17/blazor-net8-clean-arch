@@ -8,15 +8,6 @@
 @inject ISnackbar SnackBar
 @inject IDialogService DialogService
 
-<style>
-    .action-button {
-        visibility: hidden;
-    }
-    tr:hover .action-button{
-        visibility: visible;
-    }
-</style>
-
 <MudTable T="SongModel" ServerData="@(new Func<TableState, Task<TableData<SongModel>>>(GetServerData))" Elevation="25" Hover="true" @bind-song="song" @ref="table">
     <ToolBarContent>
         <MudText Typo="Typo.h4" Class="mt-2">Song List</MudText>

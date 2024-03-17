@@ -1,0 +1,6 @@
+﻿.action-button {
+    visibility: hidden;
+}
+tr:hover .action-button {
+    visibility: visible;
+}
