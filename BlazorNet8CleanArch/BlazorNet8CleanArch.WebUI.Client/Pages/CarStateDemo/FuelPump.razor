@@ -1,0 +1,11 @@
+﻿<h3>FuelPump</h3>
+Running in mode @Mode<br />
+Valve timing: @valveTiming2
+<MudDivider />
+@code {
+    [CascadingParameter]
+    public EngineMode Mode { get; set; }
+
+    [CascadingParameter(Name = "vt2")]
+    public ValveTiming valveTiming2 { get; set; }
+}

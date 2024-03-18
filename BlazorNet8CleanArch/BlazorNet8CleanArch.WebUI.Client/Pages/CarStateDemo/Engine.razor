@@ -1,0 +1,31 @@
+﻿<h3>Engine</h3>
+<ul>
+    <li>Mode: @Mode</li>
+    <li>Temperature: @Temperature <MudButton Variant="Variant.Outlined" OnClick="ChangeTemperature">Change</MudButton></li>
+</ul>
+
+Valve timing: @valveTiming
+<MudDivider />
+
+<FuelPump />
+
+@code {
+    [CascadingParameter]
+    public EngineMode Mode { get; set; }
+
+    [Parameter]
+    public int Temperature { get; set; }
+
+    [Parameter]
+    public EventCallback<int> TemperatureChanged { get; set; }
+
+    public async Task ChangeTemperature()
+    {
+        var random = new Random();
+        Temperature = random.Next(60, 400);
+        await TemperatureChanged.InvokeAsync(Temperature);
+    }
+
+    [CascadingParameter(Name = "vt1")]
+    public ValveTiming valveTiming { get; set; }
+}

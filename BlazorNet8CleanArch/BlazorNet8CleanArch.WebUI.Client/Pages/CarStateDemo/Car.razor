@@ -1,0 +1,30 @@
+﻿<h2>Car</h2>
+<p>Engine Temperature: @EngineTemp</p>
+<p>Engine Temperature2: @EngineTemp2 <MudButton Variant="Variant.Outlined" OnClick="ChangeTemperature">Change</MudButton></p>
+<p>Valve Timing: @valveTiming</p>
+<p>Valve Timing2: @valveTiming2</p>
+
+<MudDivider />
+<CascadingValue Value="EngineMode.Eco">
+    <CascadingValue Value="valveTiming" Name="vt1">
+        <CascadingValue Value="valveTiming2"  Name="vt2">
+        <Engine @bind-Temperature="EngineTemp2" />
+    </CascadingValue>  
+    </CascadingValue>  
+</CascadingValue>
+
+
+@code {
+    public int EngineTemp { get; set; } = 16;
+
+    public int EngineTemp2 { get; set; } = 17;
+
+    public ValveTiming valveTiming = ValveTiming.VTEC;
+    public ValveTiming valveTiming2 = ValveTiming.MIVEC;
+
+    public void ChangeTemperature()
+    {
+        var random = new Random();
+        EngineTemp2 = random.Next(60, 400);
+    }
+}
