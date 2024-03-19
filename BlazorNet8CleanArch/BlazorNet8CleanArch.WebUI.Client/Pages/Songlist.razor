@@ -2,6 +2,7 @@
 @attribute [Authorize]
 
 @using System.ComponentModel.DataAnnotations
+@using SmartComponents
 
 @inject HttpClient HttpClient
 @inject ILocalStorageService localStorage
@@ -57,10 +58,15 @@
     <DialogContent>      
         <EditForm Model="song">
             <DataAnnotationsValidator />
-            <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true" ></MudTextField>
+            <SmartPasteButton DefaultIcon />
+            <MudTextField @bind-Value="song.Id" Label="Song ID" Variant="Variant.Text" Margin="Margin.Normal" Disabled="true" data-smartpaste-description="Leave this field empty"></MudTextField>
             <MudTextField @bind-Value="song.Title" Label="Title" Variant="Variant.Text" Margin="Margin.Normal" autoFocus For="@(() => song.Title)"></MudTextField>
             <MudTextField @bind-Value="song.Artist" Label="Artist" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
             <MudTextField @bind-Value="song.ReleaseYear" Label="Release Year" Variant="Variant.Text" Margin="Margin.Normal"></MudTextField>
+            <MudTextField @bind-Value="song.Genre" Label="Genre" Variant="Variant.Text" Margin="Margin.Normal" 
+                data-smartpaste-description="Try infer the most appropriate genre of the song">></MudTextField>
+            <MudTextField T="String" Label="Other version" Variant="Variant.Text" Margin="Margin.Normal" Lines="3" 
+                          data-smartpaste-description="Try infer or provide some brief information of other version of the song and its artist.">></MudTextField>
             <div class="mud-dialog-actions mt-2 mr-n2">
                 <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="@(() => addEditDialogVisible = false)">Cancel</MudButton>
                 <MudLoadingButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" 
