@@ -1,3 +1,4 @@
+
 # Blazor InteractiveAuto Clean Architecture in .NET 8
 
 A clean architecture template for Blazor InteractiveAuto applications using .NET 8.
@@ -17,5 +18,7 @@ A clean architecture template for Blazor InteractiveAuto applications using .NET
 - MudBlazor and CodeBeam.MudExtensions integration
 - JWT authentication with refresh tokens
 
+## Docker Publish Command
 
+    dotnet publish --os linux --arch x64 -c Release /p:PublishProfile=DefaultContainer
 

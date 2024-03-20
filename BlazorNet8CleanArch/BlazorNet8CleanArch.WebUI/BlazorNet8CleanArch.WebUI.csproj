@@ -4,6 +4,14 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+
+	  <!--<ContainerImageName>ImageName</ContainerImageName>-->
+	  <PublishProfile>DefaultContainer</PublishProfile>
+	  <ContainerRuntimeIdentifier>linux-x64</ContainerRuntimeIdentifier>	  
+	  <ContainerFamily>jammy-chiseled</ContainerFamily>
+	  <!--<PublishTrimmed>true</PublishTrimmed>-->
+	  <!--<ContainerImageTag>1.0.0</ContainerImageTag>-->
+	  
   </PropertyGroup>
 
   <ItemGroup>
