@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace BlazorNet8CleanArch.Application
 {
@@ -6,7 +7,8 @@ namespace BlazorNet8CleanArch.Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            // services.AddScoped<IRepository, Repository>();
+            services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
             return services;
         }
     }

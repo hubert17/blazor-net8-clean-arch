@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Components.Authorization;
 using BlazorNet8CleanArch.Infrastructure.Authentication;
 using SmartComponents.Inference.OpenAI;
+using BlazorNet8CleanArch.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using BlazorNet8CleanArch.Infrastructure.Handlers.ProductHandler;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,6 +41,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetProductListHandler).Assembly));
 
 var app = builder.Build();
 
