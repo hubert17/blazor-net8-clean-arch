@@ -14,6 +14,11 @@ namespace BlazorNet8CleanArch.Infrastructure.Data
         {
         }
 
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            DatabaseSeeder.SeedData(modelBuilder);
+        }
+
         public DbSet<Product> Products { get; set; } 
     }
 }

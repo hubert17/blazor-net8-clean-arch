@@ -13,46 +13,46 @@ namespace BlazorNet8CleanArch.WebUI.Controllers
     [ApiController]
     public class ProductController : ControllerBase
     {
-        private readonly IMediator mediator;
+        private readonly IMediator _mediator;
 
         public ProductController(IMediator mediator)
         {
-            this.mediator = mediator;
+            _mediator = mediator;
         }
 
         // GET: api/<ProductController>
         [HttpGet]
         public async Task<ActionResult> Get()
         {
-            return Ok(await mediator.Send(new GetProductListQry()));
+            return Ok(await _mediator.Send(new GetProductListQry()));
         }
 
         // GET api/<ProductController>/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult> Get(int id)
+        [HttpGet("{Id}")]
+        public async Task<ActionResult> Get([FromRoute] GetProductByIdQry request)
         {
-            return Ok(await mediator.Send(new GetProductByIdQry { Id = id }));
+            return Ok(await _mediator.Send(request));
         }
 
         // POST api/<ProductController>
         [HttpPost] 
         public async Task<ActionResult> Post([FromBody] ProductDto productDto)
         {
-            return Ok(await mediator.Send(new AddEditProductCmd { ProductDto = productDto }));
+            return Ok(await _mediator.Send(new AddEditProductCmd(productDto)));
         }
 
         // PUT api/<ProductController>/5
         [HttpPut]
         public async Task<ActionResult> Put([FromBody] ProductDto productDto)
         {
-            return Ok(await mediator.Send(new AddEditProductCmd { ProductDto = productDto }));
+            return Ok(await _mediator.Send(new AddEditProductCmd(productDto)));
         }
 
         // DELETE api/<ProductController>/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+        public async Task<ActionResult> Delete([FromRoute] DeleteProductCmd request)
         {
-            return Ok(await mediator.Send(new DeleteProductCmd { Id = id }));
+            return Ok(await _mediator.Send(request));
         }
     }
 }
