@@ -79,3 +79,5 @@ app.MapControllers();
 app.MapGet("/api/hello", () => "Hello, World!");
 
 app.Run();
+
+public partial class Program { }

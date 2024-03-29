@@ -49,7 +49,7 @@ namespace BlazorNet8CleanArch.WebUI.Controllers
         }
 
         // DELETE api/<ProductController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("{Id}")]
         public async Task<ActionResult> Delete([FromRoute] DeleteProductCmd request)
         {
             return Ok(await _mediator.Send(request));
