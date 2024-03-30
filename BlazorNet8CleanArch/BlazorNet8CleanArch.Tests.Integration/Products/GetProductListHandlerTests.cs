@@ -1,4 +1,4 @@
-﻿namespace BlazorNet8CleanArch.Tests.Integration.Products;
+﻿namespace BlazorNet8CleanArch.IntegrationTests.Products;
 
 using BlazorNet8CleanArch.Application.Queries.ProductQry;
 using BlazorNet8CleanArch.Domain.Entities;
