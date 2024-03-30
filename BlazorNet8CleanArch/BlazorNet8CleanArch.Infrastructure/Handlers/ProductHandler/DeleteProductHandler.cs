@@ -1,15 +1,7 @@
-﻿using AutoMapper;
-using BlazorNet8CleanArch.Application.Commands;
+﻿using BlazorNet8CleanArch.Application.Commands;
 using BlazorNet8CleanArch.Application.Wrapper;
-using BlazorNet8CleanArch.Domain.Entities;
 using BlazorNet8CleanArch.Infrastructure.Data;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlazorNet8CleanArch.Infrastructure.Handlers.ProductHandler
 {
