@@ -1,14 +1,20 @@
-﻿namespace BlazorNet8CleanArch.Tests.Products;
+﻿namespace BlazorNet8CleanArch.Tests.Integration.Products;
 
 using BlazorNet8CleanArch.Application.Queries.ProductQry;
 using BlazorNet8CleanArch.Domain.Entities;
-using static Testing;
+using BlazorNet8CleanArch.Infrastructure.Data;
+using FluentAssertions;
 
-public class GetProductListHandlerTests : BaseTestFixture
+public class GetProductListHandlerTests : Testing, IDisposable
 {
-    [Test]
-    public async Task ShouldReturnPriorityLevels()
+    [Fact]
+    public async Task ProductsShouldNotBeEmpty()
     {
+        foreach (var product in DatabaseSeeder.GetProducts())
+        {
+            await AddAsync(product);
+        }
+
         var query = new GetProductListQry();
 
         var result = await SendAsync(query);
@@ -16,8 +22,8 @@ public class GetProductListHandlerTests : BaseTestFixture
         result.Data.Should().NotBeEmpty();
     }
 
-    [Test]
-    public async Task ShouldReturnAllListsAndItems()
+    [Fact]
+    public async Task ProductsShouldHaveTwoMoreItems()
     {
         await AddAsync(new Product { Name = "Tide Laundry Detergent", UnitPrice = 350.00m, Description = "Original scent, 64 loads", Unit = "bottle" });
         await AddAsync(new Product { Name = "Pampers Diapers", UnitPrice = 999.00m, Description = "Size 4, 120 count", Unit = "box" });
@@ -26,7 +32,7 @@ public class GetProductListHandlerTests : BaseTestFixture
 
         var result = await SendAsync(query);
 
-        result.Data.Should().HaveCount(2);
+        result.Data.Should().HaveCount(17);
     }
 
 }

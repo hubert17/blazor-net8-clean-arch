@@ -12,7 +12,13 @@ namespace BlazorNet8CleanArch.Infrastructure.Data
     {
         public static void SeedData(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>().HasData(
+            modelBuilder.Entity<Product>().HasData(GetProducts());
+        }
+
+        public static List<Product> GetProducts()
+        {
+            return new List<Product>
+            {
                 // Procter & Gamble products
                 new Product { Id = 1, Name = "Tide Laundry Detergent", UnitPrice = 350.00m, Description = "Original scent, 64 loads", Unit = "bottle" },
                 new Product { Id = 2, Name = "Pampers Diapers", UnitPrice = 999.00m, Description = "Size 4, 120 count", Unit = "box" },
@@ -37,7 +43,7 @@ namespace BlazorNet8CleanArch.Infrastructure.Data
                 new Product { Id = 13, Name = "Tanduay White Rum", UnitPrice = 125.375m, Description = "750ml", Unit = "bottle" },
                 new Product { Id = 14, Name = "Red Horse Beer", UnitPrice = 118.0625m, Description = "1000ml", Unit = "bottle" },
                 new Product { Id = 15, Name = "Emperador Light", UnitPrice = 165.442m, Description = "1L blended premium brandy", Unit = "bottle" }
-            );
+            };
         }
     }
 }
