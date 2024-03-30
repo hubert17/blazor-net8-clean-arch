@@ -10,6 +10,7 @@ using SmartComponents.Inference.OpenAI;
 using BlazorNet8CleanArch.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using BlazorNet8CleanArch.Infrastructure.Handlers.ProductHandler;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,9 +28,14 @@ builder.Services.AddScoped<AuthenticationStateProvider, PersistentAuthentication
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-}).AddIdentityCookies();
+    //options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    //options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+//.AddIdentityCookies();
+.AddCookie();
 
 builder.Services.AddSmartComponents()
     .WithInferenceBackend<OpenAIInferenceBackend>();
