@@ -1,7 +1,10 @@
 ﻿using Blazored.LocalStorage;
 using BlazorNet8CleanArch.Infrastructure.Authentication;
+using BlazorNet8CleanArch.Infrastructure.Handlers.BlazorStateHandler;
+using BlazorState;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace BlazorNet8CleanArch.Infrastructure
 {
@@ -20,6 +23,8 @@ namespace BlazorNet8CleanArch.Infrastructure
                     BaseAddress = new Uri("https://api45gabs.azurewebsites.net")
                 };
             });
+
+            services.AddBlazorState(options => options.Assemblies = [typeof(CounterState).GetTypeInfo().Assembly]);
 
             return services;
         }

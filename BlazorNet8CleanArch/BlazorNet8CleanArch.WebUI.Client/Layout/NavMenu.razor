@@ -1,4 +1,8 @@
-﻿@if(!IsDarkMode)
+﻿@inherits BlazorStateComponent
+@using BlazorState
+@using BlazorNet8CleanArch.Infrastructure.Handlers.BlazorStateHandler
+
+@if(!IsDarkMode)
 {
     <style>
         .my-custom-navmenu.mud-navmenu.mud-navmenu-default .mud-nav-link.active:not(.mud-nav-link-disabled) {
@@ -16,7 +20,7 @@
         <MudNavMenu Class="my-custom-navmenu">
             <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Home" Class="rounded">Home</MudNavLink>
             <MudNavLink Href="weather" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.WaterDrop" Class="rounded">Weather</MudNavLink>
-            <MudNavLink Href="counter" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.PlusOne" Class="rounded">Counter</MudNavLink>
+            <MudNavLink Href="counter" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.PlusOne" Class="rounded">Counter (@currentCount)</MudNavLink>
             <MudNavLink Href="songlist" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.LibraryMusic" Class="rounded">Songlist</MudNavLink>
 
             <MudDivider Class="mb-4" />
@@ -38,5 +42,8 @@
 
 @code {
     [Parameter] public bool IsDarkMode { get; set; }
+
+    CounterState CounterState => GetState<CounterState>();
+    private int currentCount => CounterState.Count;
 }
 

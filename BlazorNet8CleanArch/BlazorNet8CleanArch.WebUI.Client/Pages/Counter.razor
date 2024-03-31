@@ -1,6 +1,12 @@
 ﻿@page "/counter"
 @attribute [Authorize(Roles = "staff")]
 
+@inherits BlazorStateComponent
+@using BlazorState
+@using BlazorNet8CleanArch.Infrastructure.Handlers.BlazorStateHandler
+
+
+
 <PageTitle>Counter</PageTitle>
 
 <h1>Counter, Hello @Username - Role: @roles</h1>
@@ -10,11 +16,12 @@
 <MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="IncrementCount">Click me</MudButton>
 
 @code {
-    private int currentCount = 0;
+    CounterState CounterState => GetState<CounterState>();
+    int currentCount => CounterState.Count;
 
-    private void IncrementCount()
+    async Task IncrementCount()
     {
-        currentCount++;
+        await Mediator.Send(new CounterState.IncrementCount(5));
     }
 
     [CascadingParameter]
