@@ -43,7 +43,7 @@ builder.Services.AddSmartComponents()
 builder.Services.AddMudServices();
 builder.Services.AddMudExtensions();
 
-builder.Services.AddControllers();
+builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -81,7 +81,10 @@ app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(BlazorNet8CleanArch.WebUI.Client._Imports).Assembly);
 
-app.MapControllers();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapGet("/api/hello", () => "Hello, World!");
 
 app.Run();

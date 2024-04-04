@@ -41,20 +41,23 @@
         <MudTooltip Text="Github" Duration="1000">
             <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Href="https://github.com/hubert17/blazor-net8-clean-arch" Target="_blank" />
         </MudTooltip>
-        <MudMenu AnchorOrigin="Origin.TopLeft" Dense="true" Class="mt-1 ml-4">
-            <ActivatorContent>
-                <MudAvatar Size="Size.Medium"> 
-                    <MudImage Src="https://avatars.githubusercontent.com/u/7923889?v=4"></MudImage>
-                </MudAvatar>
-            </ActivatorContent>
-            <ChildContent>
-                <MudListItem Text="@($"{Username} Account")" Icon="@Icons.Material.Outlined.Person" Href="#" />
-                <MudListItem Text="Settings" Icon="@Icons.Material.Filled.Settings" />
-                <MudDivider />
-                <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" OnClick="@(() => Logout())" />
-            </ChildContent>
-        </MudMenu>
-        
+        <AuthorizeView>
+            <MudMenu AnchorOrigin="Origin.TopLeft" Dense="true" Class="mt-1 ml-4">
+                <ActivatorContent>
+                    <MudAvatar Size="Size.Medium"> 
+                        <MudImage Src="https://avatars.githubusercontent.com/u/7923889?v=4"></MudImage>
+                    </MudAvatar>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudListItem Text="@($"{Username} Account")" Icon="@Icons.Material.Outlined.Person" Href="#" />
+                    <MudListItem Text="Settings" Icon="@Icons.Material.Filled.Settings" />
+                    <MudDivider />
+                
+                        <MudListItem Text="Logout" Icon="@Icons.Material.Outlined.Login" OnClick="@(() => Logout())" />
+               
+                </ChildContent>
+            </MudMenu>
+        </AuthorizeView>
     </MudAppBar>
     <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Variant="@DrawerVariant.Responsive" Elevation="6">
         <NavMenu IsDarkMode="_isDarkMode" />

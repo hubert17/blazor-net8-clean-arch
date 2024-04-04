@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace BlazorNet8CleanArch.WebUI.Controllers
+namespace BlazorNet8CleanArch.WebUI.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -35,7 +35,7 @@ namespace BlazorNet8CleanArch.WebUI.Controllers
         }
 
         // POST api/<ProductController>
-        [HttpPost] 
+        [HttpPost]
         public async Task<ActionResult> Post([FromBody] ProductDto productDto)
         {
             return Ok(await _mediator.Send(new AddEditProductCmd(productDto)));

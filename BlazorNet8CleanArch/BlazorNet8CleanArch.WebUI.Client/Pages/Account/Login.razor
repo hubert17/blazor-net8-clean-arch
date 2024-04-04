@@ -53,7 +53,7 @@
             await localStorage.SetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName, tokenResponse!.Token);
             await localStorage.SetItemAsStringAsync("refreshToken", tokenResponse.RefreshToken);
             (AuthStateProvider as PersistentAuthenticationStateProvider)!.UpdateAuthenticationState(tokenResponse!.Token);
-            NavManager.NavigateTo(ReturnUrl ?? "/");
+            NavManager.NavigateTo(ReturnUrl ?? "/app");
         }
         else
         {
