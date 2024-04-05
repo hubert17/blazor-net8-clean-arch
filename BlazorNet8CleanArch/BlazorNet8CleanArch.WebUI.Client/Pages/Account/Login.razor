@@ -59,7 +59,7 @@
         {
             snackBar.Clear();
             snackBar.Configuration.PositionClass = Defaults.Classes.Position.TopCenter;
-            snackBar.Add("Invalid login.", Severity.Error);
+            snackBar.Add("Invalid login. Please try again, as this may also be caused by Azure database falling asleep.", Severity.Error);
 
             isSubmitting = false;
         }        

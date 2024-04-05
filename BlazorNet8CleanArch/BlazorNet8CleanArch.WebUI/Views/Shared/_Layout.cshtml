@@ -83,7 +83,7 @@
   
 <div id="footer-flush-bottom-wrap">
     <div id="footer-flush-bottom-main" class="container clear-top body-content">
-        @if ((ViewData.ModelState[""] != null && ViewData.ModelState[""].Errors.Count > 0) || TempData["alertcard"] != null)
+        @if ((ViewData.ModelState[""] != null && ViewData.ModelState[""]!.Errors.Count > 0) || TempData["alertcard"] != null)
         {
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 @Html.ValidationSummary(true)
@@ -128,7 +128,7 @@
         if (topLevelDomain.Equals("somee.com", StringComparison.OrdinalIgnoreCase))
         {
             <script>
-                $(document).ready((function () { var e = setInterval((function () { if ($("#nextAll").nextAll().length) { clearInterval(e); $("#nextAll").nextAll().remove() } }), 500) }));
+                $(document).ready((function () { var e = setInterval((function () { if ($("#nextAll").nextAll().length) { clearInterval(e); $("#nextAll").nextAll().remove() } }), 100) }));
             </script>
             <hr id="nextAll" style="display:none;" />
         }
