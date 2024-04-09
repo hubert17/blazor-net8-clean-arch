@@ -66,8 +66,8 @@ Request Body
     }
 ```
 
-```json
 Response Body
+```json
 
     {
       "isClassified": true,
