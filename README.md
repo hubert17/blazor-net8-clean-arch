@@ -11,7 +11,7 @@ The function should return:
 -	`censored text` – a new email text where the classified words or phrases have been replaced with asterisks, or the original email text if there was no classified material in the email
 
 ## Code solution
-
+```cs
     public record FilterClassifiedEmailCmd(string[] ClassifiedWords, string EmailText) : IRequest<ClassifiedEmailFilterDto>;
 
     public record ClassifiedEmailFilterDto(bool IsClassified, string CensoredText);
@@ -55,18 +55,22 @@ The function should return:
         {
             return Ok(await _mediator.Send(request));
         }
+```
 
 ## Test input
 Request Body
-
+```json
     {
       "classifiedWords": ["motherfucker", "putang-ina", "slim"],
       "emailText": "That slimy motherfucker denied saying this. Well, whoever he is, PUTANG-INA s'ya!"
     }
+```
 
+```json
 Response Body
 
     {
       "isClassified": true,
       "censoredText": "That slimy ************ denied saying this. Well, whoever he is, ********** s'ya!"
     }
+```
