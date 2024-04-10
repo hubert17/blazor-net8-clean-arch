@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using BlazorNet8CleanArch.Application.Commands;
+using BlazorNet8CleanArch.Application.Commands.ProductCmd;
 using BlazorNet8CleanArch.Application.Wrapper;
 using BlazorNet8CleanArch.Domain.Entities;
 using BlazorNet8CleanArch.Infrastructure.Data;

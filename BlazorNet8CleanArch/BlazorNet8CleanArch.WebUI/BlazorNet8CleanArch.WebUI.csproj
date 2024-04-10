@@ -11,7 +11,10 @@
 	  <ContainerFamily>jammy-chiseled</ContainerFamily>
 	  <!--<PublishTrimmed>true</PublishTrimmed>-->
 	  <!--<ContainerImageTag>1.0.0</ContainerImageTag>-->
-	  
+
+
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

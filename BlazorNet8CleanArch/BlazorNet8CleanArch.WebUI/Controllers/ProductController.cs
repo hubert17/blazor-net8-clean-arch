@@ -1,4 +1,4 @@
-﻿using BlazorNet8CleanArch.Application.Commands;
+﻿using BlazorNet8CleanArch.Application.Commands.ProductCmd;
 using BlazorNet8CleanArch.Application.DTOs;
 using BlazorNet8CleanArch.Application.Queries.ProductQry;
 using BlazorNet8CleanArch.Domain.Entities;
