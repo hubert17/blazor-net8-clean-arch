@@ -55,6 +55,17 @@ namespace BlazorNet8CleanArch.WebUI.Controllers
         }
 
         /// <summary>
+        /// Timesheet is read from the database by TimesheetId then validate specifc timesheet entry
+        /// </summary>
+        // Post api/<TimesheetController>/validate/52457
+        [ProducesResponseType(typeof(ViolationDto), 200)]
+        [HttpPost("validate/{Id}/timesheetdetail/{EntryId}")]     
+        public async Task<ActionResult> ValidateTimesheetEntry([FromRoute] ValidateTimesheetByIdCmd request)
+        {
+            return Ok(await _mediator.Send(request));
+        }
+
+        /// <summary>
         /// Create new list of timesheets for later validation but flag as Draft. This returns BatchId.
         /// </summary>
         // Post api/<TimesheetController>/validate/batch
