@@ -15,22 +15,24 @@
 @inject ILocalStorageService localStorage
 
 <PageTitle>Gablazor App - Login</PageTitle>
+<MudLoading ClassText="ml-15 pl-15" @bind-Loading="wakingUpDb" Overlap="@false" LoaderType="MudExtensions.Enums.LoaderType.Circular" Text="I am awakening the paused Azure database...">
 
-<MudText Typo="Typo.h4" GutterBottom="true">Sign In</MudText>
+    <MudText Typo="Typo.h4" GutterBottom="true">Sign In</MudText>
 
-<MudText>Don't have an account? <MudLink Href="/register">Sign Up</MudLink></MudText>
+    <MudText>Don't have an account? <MudLink Href="/register">Sign Up</MudLink></MudText>
 
-<MudTextField T="string" @bind-Value="@Username" Label="E-mail" Variant="Variant.Outlined" Class="my-6"></MudTextField>
+    <MudTextField T="string" @bind-Value="@Username" Label="E-mail" Variant="Variant.Outlined" Class="my-6"></MudTextField>
 
-<MudPasswordField @bind-Value="@Password" Label="Password" PasswordMode="true" Variant="Variant.Outlined" IconSize="Size.Medium" />
+    <MudPasswordField @bind-Value="@Password" Label="Password" PasswordMode="true" Variant="Variant.Outlined" IconSize="Size.Medium" />
 
-<div Class="d-flex justify-space-between align-center">
-    <MudCheckBox T="bool" Label="Remember me?" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
-    <MudLink Href="#">Forgot password?</MudLink>
-</div>
+    <div Class="d-flex justify-space-between align-center">
+        <MudCheckBox T="bool" Label="Remember me?" Color="Color.Primary" Class="ml-n1 my-3"></MudCheckBox>
+        <MudLink Href="#">Forgot password?</MudLink>
+    </div>
 
-<MudLoadingButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="LoginClicked">Sign In</MudLoadingButton>
+    <MudLoadingButton FullWidth="true" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" LoadingAdornment="Adornment.Start" @bind-Loading="isSubmitting" OnClick="LoginClicked">Sign In</MudLoadingButton>
 
+</MudLoading>
 @code {
     public record LoginDTO(string Username, string Password);
     public record TokenResponse(string Username = null!, string Token = null!, string RefreshToken = null!);    
@@ -63,6 +65,20 @@
 
             isSubmitting = false;
         }        
+    }
+
+    // Waking up paused Azure database
+    bool wakingUpDb = true;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var response = await HttpClient.GetAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/api/sample/WakeUpAzureDb");
+            if (response.IsSuccessStatusCode)
+                wakingUpDb = false;
+
+            StateHasChanged();
+        }
     }
 
 
