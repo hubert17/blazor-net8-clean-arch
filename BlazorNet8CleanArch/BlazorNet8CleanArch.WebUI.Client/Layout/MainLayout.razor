@@ -89,6 +89,13 @@
 
     async void Logout()
     {
+        var jwtToken = await localStorage.GetItemAsStringAsync(StorageConstants.Local.JWTTokenStorageKeyName);
+        Task.Run(() =>
+        {
+            Console.WriteLine("Fire and forget: HTTPPOST TOKENLOGOUT");
+            HttpClient.PostAsync($"{StorageConstants.Local.HttpClientAuthBaseAddress}/TOKENLOGOUT?token={jwtToken}", null);
+        });
+     
         await ((PersistentAuthenticationStateProvider)AuthStateProvider).MarkUserAsLoggedOut();
         NavManager.NavigateTo("/account/login");
     }
